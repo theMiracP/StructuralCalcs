@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Kiriş Moment Hesabı</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    .kutu {
+      max-width: 360px;
+      margin: auto;
+      background: white;
+      padding: 16px;
+      border-radius: 8px;
+    }
+    input, button {
+      width: 100%;
+      margin-top: 8px;
+      padding: 8px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="kutu">
+    <h3>Moment Hesabı</h3>
+
+    <label>q (kN/m)</label>
+    <input type="number" id="q">
+
+    <label>L (m)</label>
+    <input type="number" id="L">
+
+    <button onclick="hesapla()">Hesapla</button>
+
+    <p id="sonuc"></p>
+  </div>
+
+  <script>
+    function hesapla() {
+      const q = document.getElementById("q").value;
+      const L = document.getElementById("L").value;
+      const M = q * L * L / 8;
+      document.getElementById("sonuc").innerText =
+        "M = " + M;
+    }
+  </script>
+</body>
+</html>
