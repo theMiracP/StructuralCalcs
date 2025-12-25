@@ -2,53 +2,49 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Hesap Adı</title>
-<!-- XP teması için ortak CSS -->
+<title>Moment Hesabı - XP Teması</title>
+<!-- XP teması için CSS -->
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <!-- Ana kutu: hesaplama formu -->
-  <div class="kutu">
 
-
-
-    <h3>Kiriş Moment Hesabı</h3>
-
-    <!-- q değerini kullanıcıdan alıyoruz -->
+<!-- XP Temalı Pencere -->
+<div class="kutu">
+  <div class="baslik">
+    <span>Kiriş Moment Hesabı</span>
+    <button class="kapat" onclick="this.parentElement.parentElement.style.display='none'">X</button>
+  </div>
+  <div class="icerik">
+    <!-- Kullanıcı inputları -->
     <label>q (kN/m)</label>
-    <input type="number" id="q" placeholder="Örn: 5">
-    
-    <!-- L değerini kullanıcıdan alıyoruz -->
+    <input type="number" id="yük" placeholder="Örn: 5">
+
     <label>L (m)</label>
-    <input type="number" id="L" placeholder="Örn: 4">
+    <input type="number" id="uzunluk" placeholder="Örn: 4">
 
-    <!-- Hesapla butonuna tıklandığında 'hesapla()' fonksiyonu çalışacak -->
-    <button onclick="hesapla()">Hesapla</button>
-
-    <!-- Hesap sonucu buraya yazılacak -->
-    <div class="sonuc" id="sonuc"></div>
- 
-
-    <label for="yukKonum">Yük Konumu (m):</label>
+    <label for="yukKonum">Yük Konumu (m)</label>
     <input type="number" id="yukKonum" placeholder="0 ile kiriş uzunluğu arası">
 
+    <!-- Hesapla butonu -->
+    <button onclick="hesapla()">Hesapla</button>
 
+    <!-- Hesap sonucu -->
+    <div class="sonuc" id="sonuc"></div>
+
+    <!-- Canvas XP pencere içi -->
+    <canvas id="kirisCanvas" width="360" height="150" style="border:1px solid #000000; margin-top:10px;">
+      Tarayıcınız canvas desteklemiyor.
+    </canvas>
   </div>
+</div>
 
-  <canvas id="kirisCanvas" width="400" height="150" style="border:1px solid #000000; margin-top:12px;">
-  Tarayıcınız canvas desteklemiyor.
-   </canvas>
-
-
-
-
- <script>
- function hesapla() {
+<script>
+function hesapla() {
   // -------------------------------
-  // 1. Input değerlerini al
+  // 1. Kullanıcı inputlarını al
   // -------------------------------
-  const uzunluk = parseFloat(document.getElementById("uzunluk").value);
-  const yuk = parseFloat(document.getElementById("yük").value);
+  const uzunluk = parseFloat(document.getElementById("uzunluk").value); // L
+  const yuk = parseFloat(document.getElementById("yük").value);         // q
   const yukKonum = parseFloat(document.getElementById("yukKonum")?.value || uzunluk/2);
 
   if (isNaN(uzunluk) || isNaN(yuk) || isNaN(yukKonum)) {
@@ -57,32 +53,34 @@
   }
 
   // -------------------------------
-  // 2. Moment hesabı
-  // -------------------------------
+  // 2. Maksimum moment hesabı
+  // M = P * a * b / L
   const a = yukKonum;
   const b = uzunluk - a;
   const momentMax = (yuk * a * b) / uzunluk;
   document.getElementById("sonuc").innerText = "Maksimum Moment = " + momentMax.toFixed(2) + " kNm";
 
   // -------------------------------
-  // 3. Canvas çizimi (XP temalı)
+  // 3. Canvas çizimi
   // -------------------------------
   const canvas = document.getElementById("kirisCanvas");
   const ctx = canvas.getContext("2d");
 
-  // Canvas arka planını XP dialog rengi yap
-  ctx.fillStyle = "#C0C0C0"; // XP dialog gri
+  // 3a. Canvas arka planı (XP dialog gri)
+  ctx.fillStyle = "#C0C0C0";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // Ölçekleme
-  const scaleX = 300 / uzunluk;
-  const scaleY = 100 / (momentMax*1.2);
+  const scaleX = 300 / uzunluk;          // kiriş genişliği 300px
+  const scaleY = 100 / (momentMax*1.2); // moment diyagramı yüksekliği
 
-  // Kiriş çizimi (XP gri)
-  ctx.fillStyle = "#808080";
+  // -------------------------------
+  // 3b. Kiriş çizimi (XP gri)
+  ctx.fillStyle = "#808080"; 
   ctx.fillRect(50, 120, 300, 10);
 
-  // Yük okunu çiz (kırmızı, XP stili)
+  // -------------------------------
+  // 3c. Yük oku çizimi (XP kırmızı)
   ctx.fillStyle = "red";
   const yukPoz = 50 + a*scaleX;
   ctx.beginPath();
@@ -92,9 +90,10 @@
   ctx.closePath();
   ctx.fill();
 
-  // Moment diyagramı çizimi (XP mavi tonları, kalın çizgi)
-  ctx.strokeStyle = "#0000FF"; // koyu mavi
-  ctx.lineWidth = 2;            // kalın çizgi
+  // -------------------------------
+  // 3d. Moment diyagramı çizimi (XP mavi)
+  ctx.strokeStyle = "#0000FF"; // XP mavi ton
+  ctx.lineWidth = 2;           // kalın çizgi
   ctx.beginPath();
   for (let i=0; i<=300; i+=2) {
     const x = 50 + i;
@@ -114,23 +113,59 @@
   ctx.stroke();
 
   // -------------------------------
-  // 4. X ve Y eksenleri (XP stili gri)
-  // -------------------------------
-  ctx.strokeStyle = "#000080"; // koyu mavi XP tarzı
+  // 3e. X ve Y eksenleri (XP stili)
+  ctx.strokeStyle = "#000080"; 
   ctx.lineWidth = 1;
+  // X ekseni
   ctx.beginPath();
-  ctx.moveTo(50, 120);            // x ekseni
+  ctx.moveTo(50, 120);
   ctx.lineTo(350, 120);
   ctx.stroke();
-
+  // Y ekseni
   ctx.beginPath();
-  ctx.moveTo(50, 20);             // y ekseni
+  ctx.moveTo(50, 20);
   ctx.lineTo(50, 130);
   ctx.stroke();
- }
- </script>
 
+  // -------------------------------
+// 3f. Grid ve eksen değerleri
+// -------------------------------
 
+// X ekseni için 5 eşit aralık
+ctx.strokeStyle = "#A0A0A0"; // hafif gri grid
+ctx.lineWidth = 1;
+
+for(let i=0; i<=5; i++){
+  const x = 50 + (i*300/5);
+  ctx.beginPath();
+  ctx.moveTo(x, 20);      // üstten başla
+  ctx.lineTo(x, 120);     // x ekseni çizgisi
+  ctx.stroke();
+
+  // X eksen değerleri
+  ctx.fillStyle = "#000000";
+  ctx.font = "10px Tahoma";
+  const label = (i*uzunluk/5).toFixed(1);
+  ctx.fillText(label, x-6, 135); // 135 px altına yaz
+}
+
+// Y ekseni için 5 eşit aralık
+for(let i=0; i<=5; i++){
+  const y = 120 - (i*100/5);
+  ctx.beginPath();
+  ctx.moveTo(50, y);
+  ctx.lineTo(350, y); // yatay grid çizgisi
+  ctx.stroke();
+
+  // Y eksen değerleri
+  ctx.fillStyle = "#000000";
+  ctx.font = "10px Tahoma";
+  const label = (i*momentMax/5).toFixed(1);
+  ctx.fillText(label, 30, y+3); // 30 px sola yaz
+}
+
+}
+</script>
 
 </body>
 </html>
