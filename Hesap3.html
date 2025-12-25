@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Hesap3</title>
+  <!-- Ortak XP CSS dosyası -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Tüm hesap formu bu kutu içine gelecek -->
+  <div class="kutu">
+    <div class="muhendis-card">
+  <div class="header">
+    <h2>Basit Kiriş Momenti</h2>
+    <p>Yayılı Yük (q) altında</p>
+  </div>
+
+  <div class="kiris-sema">
+    <div class="yuk-oklari">↓↓↓↓↓↓↓↓</div>
+    <div class="kiris-cubuk"></div>
+    <div class="mesnetler">
+      <span>▲</span>
+      <span>▲</span>
+    </div>
+  </div>
+
+  <div class="input-group">
+    <label>Yayılı Yük (q) <span class="birim">[kN/m]</span></label>
+    <input type="number" id="q" placeholder="Örn: 10">
+  </div>
+
+  <div class="input-group">
+    <label>Kiriş Uzunluğu (L) <span class="birim">[m]</span></label>
+    <input type="number" id="l" placeholder="Örn: 5">
+  </div>
+
+  <button onclick="hesapla()" id="hesapla-btn">HESAPLA</button>
+
+  <div class="sonuc-kutusu" id="sonuc-alani" style="display:none;">
+    <span class="etiket">Maksimum Moment ($M_{max}$)</span>
+    <span class="deger" id="sonuc">0</span>
+    <span class="birim-sonuc">kNm</span>
+  </div>
+</div>
+  </div>
+
+<script>
+  function hesapla() {
+  // Değerleri al
+  var q = parseFloat(document.getElementById('q').value);
+  var l = parseFloat(document.getElementById('l').value);
+  
+  // Kontrol et: Boş mu?
+  if (isNaN(q) || isNaN(l)) {
+    alert("Lütfen q ve L değerlerini sayı olarak giriniz.");
+    return;
+  }
+  
+  // Formül: M = q * l^2 / 8
+  var moment = (q * Math.pow(l, 2)) / 8;
+  
+  // Sonucu yazdır
+  document.getElementById('sonuc').innerText = moment.toFixed(2); // 2 basamak
+  
+  // Sonuç kutusunu görünür yap
+  document.getElementById('sonuc-alani').style.display = 'block';
+}
+</script>
+
+
+
+</body>
+</html>
