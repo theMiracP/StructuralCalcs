@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Kiriş Moment Hesabı</title>
+<!-- Ortak CSS dosyasını ekliyoruz, tüm sayfalarda aynı tasarım olur -->
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <!-- Ana kutu: hesaplama formu burada yer alacak -->
+  <div class="kutu">
+    <h3>Kiriş Moment Hesabı</h3>
+
+    <!-- q değerini kullanıcıdan alıyoruz -->
+    <label>q (kN/m)</label>
+    <input type="number" id="q" placeholder="Örn: 5">
+    
+    <!-- L değerini kullanıcıdan alıyoruz -->
+    <label>L (m)</label>
+    <input type="number" id="L" placeholder="Örn: 4">
+
+    <!-- Hesapla butonuna tıklandığında 'hesapla()' fonksiyonu çalışacak -->
+    <button onclick="hesapla()">Hesapla</button>
+
+    <!-- Hesap sonucu buraya yazılacak -->
+    <div class="sonuc" id="sonuc"></div>
+  </div>
+
+  <script>
+    // hesapla() fonksiyonu kullanıcı değerlerini alır ve M = q*L^2 / 8 formülü ile sonucu hesaplar
+    function hesapla() {
+      // Kullanıcıdan değerleri alıyoruz ve sayıya çeviriyoruz
+      const q = parseFloat(document.getElementById("q").value);
+      const L = parseFloat(document.getElementById("L").value);
+
+      // Eğer değer girilmemişse uyarı ver
+      if(isNaN(q) || isNaN(L)) {
+        document.getElementById("sonuc").innerText = "Lütfen değer giriniz.";
+        return;
+      }
+
+      // Moment formülü: M = q * L^2 / 8
+      const M = q * L * L / 8;
+
+      // Sonucu ekranda göster
+      document.getElementById("sonuc").innerText = "M = " + M.toFixed(2) + " kNm";
+    }
+  </script>
+</body>
+</html>
