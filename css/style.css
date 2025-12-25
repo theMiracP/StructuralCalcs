@@ -1,59 +1,120 @@
-/* ----------------------------- */
-/* Genel body stili              */
-/* ----------------------------- */
-body {
-  font-family: Tahoma, Geneva, sans-serif; /* XP font benzeri */
-  background: #008080; /* XP mavi-yeşil arka plan */
-  padding: 20px;       /* Sayfa kenar boşluğu */
-  color: black;        /* Yazı rengi */
-}
+/* ============================= */
+/* GERÇEK XP PENCERE STİLİ       */
+/* ============================= */
 
 /* ----------------------------- */
-/* Ana kutu stili                */
+/* XP PENCERE ÇERÇEVESİ          */
 /* ----------------------------- */
 .kutu {
-  max-width: 360px;            /* Kutunun maksimum genişliği */
-  margin: auto;                /* Ortalamak için */
-  background: #C0C0C0;         /* XP gri kutu rengi */
-  padding: 16px;               /* İç boşluk */
-  border: 2px solid #000080;   /* XP koyu mavi çerçeve */
-  border-radius: 0px;          /* XP köşeler kare */
-  box-shadow: 5px 5px 0px #808080; /* XP gölge efekti */
+  position: relative;                 /* Başlık çubuğu ve içerik için */
+  background: #C0C0C0;               /* XP gri pencere arka planı */
+  border: 2px solid #000080;         /* Koyu mavi pencere çerçevesi */
+  box-shadow: 8px 8px 0 #808080;     /* XP pencere gölgesi */
+  padding: 16px;
+  max-width: 400px;
+  margin: 40px auto;                 /* Ortalamak için */
+  border-radius: 0px;                /* Kare köşeler XP stili */
 }
 
 /* ----------------------------- */
-/* Input ve button stili         */
+/* XP BAŞLIK ÇUBUĞU VE BUTONLARI */
 /* ----------------------------- */
-input, button {
-  width: 100%;                 /* Tam genişlik */
-  margin-top: 8px;             /* Üst boşluk */
-  padding: 6px;                /* İç boşluk */
-  font-size: 14px;             /* Yazı boyutu */
-  font-family: Tahoma, Geneva, sans-serif; /* XP fontu */
+.kutu h3 {
+  position: relative;                 /* Pencere içi konumlandırma */
+  margin: -16px -16px 12px -16px;    /* Kutunun üstüne yay */
+  padding: 4px 8px;
+  background: #000080;                /* Koyu mavi XP başlık */
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  border-bottom: 1px solid #808080;  /* Alt çizgi */
+}
+
+/* Küçük simge ve kapatma düğmesi eklemek için pseudo element */
+.kutu h3::before {
+  content: "\1F5D9";                  /* XP tarzı pencere simgesi (placeholder) */
+  display: inline-block;
+  margin-right: 6px;
+}
+
+.kutu h3::after {
+  content: "✖";                        /* Kapatma düğmesi simgesi */
+  position: absolute;
+  right: 8px;
+  top: 4px;
+  cursor: pointer;
 }
 
 /* ----------------------------- */
-/* Button özel XP stili          */
+/* INPUT KUTULARI XP 3D EFFECT   */
+/* ----------------------------- */
+input {
+  width: 100%;
+  margin-top: 8px;
+  padding: 6px;
+  font-family: Tahoma, Geneva, sans-serif;
+  font-size: 14px;
+  border: 2px inset #fff #808080 #808080 #fff; /* 3D inset efekti */
+  background: #C0C0C0;
+  box-sizing: border-box;
+}
+
+/* ----------------------------- */
+/* BUTONLAR XP STYLE             */
 /* ----------------------------- */
 button {
-  background: linear-gradient(to bottom, #E0E0E0, #A0A0A0); /* XP gradient */
-  border: 2px solid #000080;     /* Koyu mavi çerçeve */
-  color: black;                   /* Yazı rengi */
-  cursor: pointer;                /* Hover cursor */
+  width: 100%;
+  margin-top: 8px;
+  padding: 6px;
+  font-family: Tahoma, Geneva, sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  border: 2px outset #fff #808080 #808080 #fff; /* 3D outset efekti */
+  background: linear-gradient(to bottom, #E0E0E0, #A0A0A0);
+  box-shadow: 1px 1px 0 #fff inset, -1px -1px 0 #808080 inset;
 }
 
-/* Hover efekti (fare üstüne geldiğinde) */
+/* Hover efekti */
 button:hover {
-  background: linear-gradient(to bottom, #F0F0F0, #B0B0B0); /* Açık ton gradient */
+  background: linear-gradient(to bottom, #F0F0F0, #B0B0B0);
 }
 
 /* ----------------------------- */
-/* Sonuç kutusu stili            */
+/* SONUÇ KUTUSU XP DIALOG        */
 /* ----------------------------- */
 .sonuc {
-  margin-top: 12px;           /* Üst boşluk */
-  font-weight: bold;           /* Kalın yazı */
-  background: #FFFFFF;         /* Beyaz kutu arka planı */
-  border: 1px solid #000080;   /* Koyu mavi çerçeve */
-  padding: 6px;               /* İç boşluk */
+  margin-top: 12px;
+  font-weight: bold;
+  background: #FFFFFF;               /* Beyaz XP dialog arka planı */
+  border: 2px solid #000080;         /* Koyu mavi çerçeve */
+  padding: 6px;
+  box-shadow: inset 1px 1px 0 #fff, inset -1px -1px 0 #808080; /* 3D inset */
+  text-align: center;
+}
+
+/* ----------------------------- */
+/* MENÜ LİNKLERİ XP STYLE        */
+/* ----------------------------- */
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+ul li {
+  margin-bottom: 6px;
+}
+
+ul li a {
+  display: block;
+  padding: 6px;
+  background: #C0C0C0;
+  color: black;
+  text-decoration: none;
+  border: 2px outset #fff #808080 #808080 #fff; /* 3D XP düğme */
+  font-weight: bold;
+}
+
+ul li a:hover {
+  background: linear-gradient(to bottom, #E0E0E0, #A0A0A0);
 }

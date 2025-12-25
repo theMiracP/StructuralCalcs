@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Hesap X</title>
+  <!-- Ortak XP teması CSS dosyası -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ===================== -->
+  <!-- PENCERE KUTUSU XP      -->
+  <!-- ===================== -->
+  <div class="kutu">
+    
+    <!-- Başlık çubuğu -->
+    <h3>Hesap X</h3>
+    
+    <!-- ===================== -->
+    <!-- INPUT ALANLARI         -->
+    <!-- ===================== -->
+    <label for="deger1">Değer 1:</label>
+    <input type="number" id="deger1" placeholder="Örn: 5">
+
+    <label for="deger2">Değer 2:</label>
+    <input type="number" id="deger2" placeholder="Örn: 4">
+
+    <!-- ===================== -->
+    <!-- HESAPLA BUTONU         -->
+    <!-- ===================== -->
+    <button onclick="hesapla()">Hesapla</button>
+
+    <!-- ===================== -->
+    <!-- SONUÇ KUTUSU           -->
+    <!-- ===================== -->
+    <div class="sonuc" id="sonuc"></div>
+    
+  </div>
+
+  <!-- ===================== -->
+  <!-- JAVASCRIPT KODU        -->
+  <!-- ===================== -->
+  <script>
+    // hesapla() fonksiyonu örnek
+    // Bu fonksiyon inputlardan değerleri alır, hesaplama yapar ve sonucu gösterir
+    function hesapla() {
+      const deger1 = parseFloat(document.getElementById("deger1").value);
+      const deger2 = parseFloat(document.getElementById("deger2").value);
+
+      // Eğer input boş veya geçersizse uyarı ver
+      if (isNaN(deger1) || isNaN(deger2)) {
+        document.getElementById("sonuc").innerText = "Lütfen değer giriniz.";
+        return;
+      }
+
+      // ÖRNEK HESAPLAMA: toplama
+      const sonuc = deger1 + deger2; 
+
+      // Sonucu ekranda göster
+      document.getElementById("sonuc").innerText = "Sonuç = " + sonuc;
+    }
+  </script>
+
+</body>
+</html>
