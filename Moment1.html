@@ -27,27 +27,110 @@
 
     <!-- Hesap sonucu buraya yazılacak -->
     <div class="sonuc" id="sonuc"></div>
+ 
+
+    <label for="yukKonum">Yük Konumu (m):</label>
+    <input type="number" id="yukKonum" placeholder="0 ile kiriş uzunluğu arası">
+
+
   </div>
 
-  <script>
-    // hesapla() fonksiyonu kullanıcı değerlerini alır ve M = q*L^2 / 8 formülü ile sonucu hesaplar
-    function hesapla() {
-      // Kullanıcıdan değerleri alıyoruz ve sayıya çeviriyoruz
-      const q = parseFloat(document.getElementById("q").value);
-      const L = parseFloat(document.getElementById("L").value);
+  <canvas id="kirisCanvas" width="400" height="150" style="border:1px solid #000000; margin-top:12px;">
+  Tarayıcınız canvas desteklemiyor.
+   </canvas>
 
-      // Eğer değer girilmemişse uyarı ver
-      if(isNaN(q) || isNaN(L)) {
-        document.getElementById("sonuc").innerText = "Lütfen değer giriniz.";
-        return;
-      }
 
-      // Moment formülü: M = q * L^2 / 8
-      const M = q * L * L / 8;
 
-      // Sonucu ekranda göster
-      document.getElementById("sonuc").innerText = "M = " + M.toFixed(2) + " kNm";
+
+ <script>
+ function hesapla() {
+  // -------------------------------
+  // 1. Input değerlerini al
+  // -------------------------------
+  const uzunluk = parseFloat(document.getElementById("uzunluk").value);
+  const yuk = parseFloat(document.getElementById("yük").value);
+  const yukKonum = parseFloat(document.getElementById("yukKonum")?.value || uzunluk/2);
+
+  if (isNaN(uzunluk) || isNaN(yuk) || isNaN(yukKonum)) {
+    document.getElementById("sonuc").innerText = "Lütfen geçerli değerler giriniz.";
+    return;
+  }
+
+  // -------------------------------
+  // 2. Moment hesabı
+  // -------------------------------
+  const a = yukKonum;
+  const b = uzunluk - a;
+  const momentMax = (yuk * a * b) / uzunluk;
+  document.getElementById("sonuc").innerText = "Maksimum Moment = " + momentMax.toFixed(2) + " kNm";
+
+  // -------------------------------
+  // 3. Canvas çizimi (XP temalı)
+  // -------------------------------
+  const canvas = document.getElementById("kirisCanvas");
+  const ctx = canvas.getContext("2d");
+
+  // Canvas arka planını XP dialog rengi yap
+  ctx.fillStyle = "#C0C0C0"; // XP dialog gri
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // Ölçekleme
+  const scaleX = 300 / uzunluk;
+  const scaleY = 100 / (momentMax*1.2);
+
+  // Kiriş çizimi (XP gri)
+  ctx.fillStyle = "#808080";
+  ctx.fillRect(50, 120, 300, 10);
+
+  // Yük okunu çiz (kırmızı, XP stili)
+  ctx.fillStyle = "red";
+  const yukPoz = 50 + a*scaleX;
+  ctx.beginPath();
+  ctx.moveTo(yukPoz, 110);
+  ctx.lineTo(yukPoz-5, 120);
+  ctx.lineTo(yukPoz+5, 120);
+  ctx.closePath();
+  ctx.fill();
+
+  // Moment diyagramı çizimi (XP mavi tonları, kalın çizgi)
+  ctx.strokeStyle = "#0000FF"; // koyu mavi
+  ctx.lineWidth = 2;            // kalın çizgi
+  ctx.beginPath();
+  for (let i=0; i<=300; i+=2) {
+    const x = 50 + i;
+    const Lpix = 300;
+    const aPix = a * scaleX;
+    let y;
+
+    if(i <= aPix){
+      y = 120 - (yuk * i * (Lpix - aPix) / Lpix) * scaleY;
+    } else {
+      y = 120 - (yuk * aPix * (Lpix - i) / Lpix) * scaleY;
     }
-  </script>
+
+    if(i===0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // -------------------------------
+  // 4. X ve Y eksenleri (XP stili gri)
+  // -------------------------------
+  ctx.strokeStyle = "#000080"; // koyu mavi XP tarzı
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(50, 120);            // x ekseni
+  ctx.lineTo(350, 120);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(50, 20);             // y ekseni
+  ctx.lineTo(50, 130);
+  ctx.stroke();
+ }
+ </script>
+
+
+
 </body>
 </html>
