@@ -1,37 +1,59 @@
+/* ----------------------------- */
+/* Genel body stili              */
+/* ----------------------------- */
 body {
-  font-family: Arial, sans-serif;
-  background: #f5f5f5;
-  padding: 20px;
+  font-family: Tahoma, Geneva, sans-serif; /* XP font benzeri */
+  background: #008080; /* XP mavi-yeşil arka plan */
+  padding: 20px;       /* Sayfa kenar boşluğu */
+  color: black;        /* Yazı rengi */
 }
 
+/* ----------------------------- */
+/* Ana kutu stili                */
+/* ----------------------------- */
 .kutu {
-  max-width: 360px;
-  margin: auto;
-  background: #fff;
-  padding: 16px;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0,0,0,.1);
+  max-width: 360px;            /* Kutunun maksimum genişliği */
+  margin: auto;                /* Ortalamak için */
+  background: #C0C0C0;         /* XP gri kutu rengi */
+  padding: 16px;               /* İç boşluk */
+  border: 2px solid #000080;   /* XP koyu mavi çerçeve */
+  border-radius: 0px;          /* XP köşeler kare */
+  box-shadow: 5px 5px 0px #808080; /* XP gölge efekti */
 }
 
+/* ----------------------------- */
+/* Input ve button stili         */
+/* ----------------------------- */
 input, button {
-  width: 100%;
-  margin-top: 8px;
-  padding: 8px;
-  font-size: 16px;
+  width: 100%;                 /* Tam genişlik */
+  margin-top: 8px;             /* Üst boşluk */
+  padding: 6px;                /* İç boşluk */
+  font-size: 14px;             /* Yazı boyutu */
+  font-family: Tahoma, Geneva, sans-serif; /* XP fontu */
 }
 
+/* ----------------------------- */
+/* Button özel XP stili          */
+/* ----------------------------- */
 button {
-  background: #0073aa;
-  color: white;
-  border: none;
-  cursor: pointer;
+  background: linear-gradient(to bottom, #E0E0E0, #A0A0A0); /* XP gradient */
+  border: 2px solid #000080;     /* Koyu mavi çerçeve */
+  color: black;                   /* Yazı rengi */
+  cursor: pointer;                /* Hover cursor */
 }
 
+/* Hover efekti (fare üstüne geldiğinde) */
 button:hover {
-  background: #005f8a;
+  background: linear-gradient(to bottom, #F0F0F0, #B0B0B0); /* Açık ton gradient */
 }
 
+/* ----------------------------- */
+/* Sonuç kutusu stili            */
+/* ----------------------------- */
 .sonuc {
-  margin-top: 12px;
-  font-weight: bold;
+  margin-top: 12px;           /* Üst boşluk */
+  font-weight: bold;           /* Kalın yazı */
+  background: #FFFFFF;         /* Beyaz kutu arka planı */
+  border: 1px solid #000080;   /* Koyu mavi çerçeve */
+  padding: 6px;               /* İç boşluk */
 }
