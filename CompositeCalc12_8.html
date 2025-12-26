@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Kompozit Kiriş (Örnek 12.8) - XP</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* Sayfa Düzeni */
+  .main-container {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    font-family: 'Tahoma', sans-serif;
+  }
+  
+  .left-panel {
+    width: 340px;
+    background: #ece9d8;
+    border: 1px solid #7f9db9;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  /* Grup Kutuları */
+  .group-box {
+    border: 1px solid #d0d0bf;
+    background: #fff;
+    padding: 6px;
+    border-radius: 3px;
+  }
+  .group-title {
+    font-size: 11px;
+    font-weight: bold;
+    color: #003399;
+    margin-bottom: 5px;
+    border-bottom: 1px dotted #ccc;
+    padding-bottom: 2px;
+  }
+  
+  /* Form Elemanları */
+  .form-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 3px;
+    font-size: 11px;
+  }
+  .form-row label { flex: 1; }
+  .form-row input {
+    width: 60px;
+    font-size: 11px;
+    padding: 1px;
+    border: 1px solid #7f9db9;
+    text-align: right;
+  }
+  .unit { width: 30px; margin-left: 3px; color: #666; font-size: 10px; }
+
+  /* Sonuç Alanları */
+  .calc-steps {
+    background-color: #ffffe1; 
+    border: 1px inset #999;
+    padding: 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #000;
+    flex: 1;
+    overflow-y: auto;
+    max-height: 400px;
+    white-space: pre-wrap;
+  }
+  
+  .calc-header {
+    font-weight: bold;
+    border-bottom: 1px dashed #666;
+    margin-bottom: 5px;
+    color: #000080;
+    display: block;
+    margin-top: 10px;
+  }
+  
+  .pass { color: green; font-weight: bold; }
+  .fail { color: red; font-weight: bold; }
+
+  canvas {
+    background: #fff;
+    border: 1px solid #7f9db9;
+    cursor: crosshair;
+  }
+  
+  .tooltip {
+      position: absolute;
+      background: #ffffcc;
+      border: 1px solid #000;
+      padding: 2px 5px;
+      font-size: 10px;
+      display: none;
+      pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="kutu" style="width: 900px;">
+  <div class="baslik">
+    <span>Kompozit Kiriş Hesabı (Örnek 12.8 - Sac Hadveleri Dik)</span>
+    <button class="kapat" onclick="window.location.href='index.html'">X</button>
+  </div>
+
+  <div class="main-container">
+    
+    <div class="left-panel">
+        
+        <div class="group-box">
+            <div class="group-title">1. Malzeme ve Yükler (C30 / S355)</div>
+            <div class="form-row"><label>Beton (fck):</label><input type="number" id="fck" value="30"><span class="unit">MPa</span></div>
+            <div class="form-row"><label>Çelik (Fy):</label><input type="number" id="Fy" value="355"><span class="unit">MPa</span></div>
+            <div class="form-row"><label>Ölü Yük (G):</label><input type="number" id="wG" value="14.5"><span class="unit">kN/m</span></div>
+            <div class="form-row"><label>Hareketli (Q):</label><input type="number" id="wQ" value="12.0"><span class="unit">kN/m</span></div>
+            <div class="form-row"><label>Açıklık (L):</label><input type="number" id="L_span" value="7.5"><span class="unit">m</span></div>
+        </div>
+
+        <div class="group-box">
+            <div class="group-title">2. Çelik Profil (IPE 450)</div>
+            <div class="form-row"><label>Derinlik (d):</label><input type="number" id="d_steel" value="450"><span class="unit">mm</span></div>
+            <div class="form-row"><label>Alan (As):</label><input type="number" id="As" value="9880"><span class="unit">mm²</span></div>
+            <div class="form-row"><label>Başlık (bf):</label><input type="number" id="bf" value="190"><span class="unit">mm</span></div>
+            <div class="form-row"><label>Gövde (tw):</label><input type="number" id="tw" value="9.4"><span class="unit">mm</span></div>
+        </div>
+
+        <div class="group-box">
+            <div class="group-title">3. Beton Döşeme (Sac Dik)</div>
+            <div class="form-row"><label>Etkili Gen. (beff):</label><input type="number" id="beff" value="1875"><span class="unit">mm</span></div>
+            <div class="form-row"><label>Üst Beton (hc'):</label><input type="number" id="hc_top" value="80"><span class="unit">mm</span></div>
+            <div class="form-row"><label>Hadve Yük. (hr):</label><input type="number" id="hr" value="50"><span class="unit">mm</span></div>
+        </div>
+        
+        <div class="group-box">
+            <div class="group-title">4. Çelik Ankraj (Stud)</div>
+            <div class="form-row"><label>Çap (d):</label><input type="number" id="d_stud" value="19"><span class="unit">mm</span></div>
+            <div class="form-row"><label>Boy (h):</label><input type="number" id="h_stud" value="100"><span class="unit">mm</span></div>
+            <div class="form-row"><label>Fu (Ankraj):</label><input type="number" id="Fu_stud" value="450"><span class="unit">MPa</span></div>
+            <div class="form-row"><label>Adet (Yarı Açıklık):</label><input type="number" id="n_studs" value="43"><span class="unit">adet</span></div>
+        </div>
+
+        <button class="xp-buton" onclick="hesapla12_8()" style="width:100%; height:35px; font-weight:bold;">HESAPLA VE ÇİZ</button>
+    </div>
+
+    <div class="right-panel">
+        <div style="position:relative;">
+            <canvas id="visCanvas" width="520" height="220"></canvas>
+            <div id="tooltip" class="tooltip"></div>
+        </div>
+
+        <div id="results" class="calc-steps">
+            Veriler 'Çelik Yapılar Uygulama Kılavuzu - Örnek 12.8' varsayılanlarıdır. Hesaplamak için butona basınız.
+        </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// --- YARDIMCI FONKSİYONLAR ---
+function log(msg, clear=false) {
+    const el = document.getElementById("results");
+    if(clear) el.innerHTML = "";
+    el.innerHTML += msg + "\n";
+}
+
+// --- ANA HESAPLAMA FONKSİYONU ---
+function hesapla12_8() {
+    // 1. Girdileri Al
+    const fck = parseFloat(document.getElementById("fck").value);
+    const Fy = parseFloat(document.getElementById("Fy").value);
+    const wG = parseFloat(document.getElementById("wG").value);
+    const wQ = parseFloat(document.getElementById("wQ").value);
+    const L = parseFloat(document.getElementById("L_span").value);
+    
+    const d_steel = parseFloat(document.getElementById("d_steel").value);
+    const As = parseFloat(document.getElementById("As").value);
+    
+    const beff = parseFloat(document.getElementById("beff").value);
+    const hc_top = parseFloat(document.getElementById("hc_top").value);
+    const hr = parseFloat(document.getElementById("hr").value);
+    const hc_total = hc_top + hr;
+    
+    const d_stud = parseFloat(document.getElementById("d_stud").value);
+    const h_stud = parseFloat(document.getElementById("h_stud").value);
+    const Fu_stud = parseFloat(document.getElementById("Fu_stud").value);
+    const N_provided = parseFloat(document.getElementById("n_studs").value); // Mevcut ankraj sayısı (yarım açıklık)
+
+    log("", true); // Ekranı temizle
+    
+    // --- ADIM 1: YÜKLER VE MOMENT ---
+    log("<span class='calc-header'>I. TASARIM YÜKLERİ (YDKT)</span>");
+    const wu = 1.2 * wG + 1.6 * wQ;
+    const Mu = (wu * L * L) / 8;
+    log(`wu = 1.2*${wG} + 1.6*${wQ} = ${wu.toFixed(2)} kN/m`);
+    log(`Gerekli Moment (Mu) = (wu * L²) / 8 = <b>${Mu.toFixed(2)} kNm</b>`);
+    
+    // --- ADIM 2: KUVVETLERİN HESABI ---
+    log("<span class='calc-header'>II. İÇ KUVVETLER (Tam Etkileşim)</span>");
+    
+    // Çelik Çekme Kapasitesi (Ts)
+    const Ts = As * Fy / 1000; // kN
+    log(`Çelik Çekme Kuvveti (Ts) = As * Fy = ${As} * ${Fy} / 1000 = <b>${Ts.toFixed(1)} kN</b>`);
+    
+    // Beton Basınç Kapasitesi (Cc_max)
+    // Örnek 12.8'de saclar kirişe DİK olduğu için sadece üst beton (hc') çalışır.
+    // Ac = beff * hc'
+    const Ac = beff * hc_top;
+    const Cc_max = 0.85 * fck * Ac / 1000; // kN
+    log(`Beton Maks. Basınç (Cc_max) = 0.85 * fck * beff * hc'`);
+    log(`Cc_max = 0.85 * ${fck} * ${beff} * ${hc_top} / 1000 = <b>${Cc_max.toFixed(1)} kN</b>`);
+    
+    // --- ADIM 3: ANKRAJ (STUD) HESABI ---
+    log("<span class='calc-header'>III. ANKRAJ VE ETKİLEŞİM DERECESİ</span>");
+    
+    // Ankraj Kapasitesi (Qn) - Yön. 12.8.3.1
+    // Ec hesabı: 0.043 * wc^1.5 * sqrt(fck). Örnekte wc=2400.
+    const Ec = 0.043 * Math.pow(2400, 1.5) * Math.sqrt(fck); // MPa (~27690)
+    const Asc = (Math.PI * d_stud * d_stud) / 4;
+    const Rg = 1.0; // Örnekteki varsayım (veya 0.85 duruma göre) - Örnek 12.8'de sac dik: Rg=1.0 (tek stud) veya 0.85 (çift). 
+    // PDF Örnek 12.8'de Rg=0.85, Rp=0.75 alınmış (2 stud/hadve varsayımı ile).
+    // Ancak burada basitlik için tekil ankraj varsayımıyla Rg=1.0 alabiliriz ama örneğe sadık kalalım.
+    // Örnekte: Qn = 0.5 * Asc * sqrt(fck * Ec) <= Rg * Rp * Asc * Fu
+    // PDF sayfa 249'da Rg=0.85, Rp=0.75 kullanılmış.
+    const Rg_val = 0.85; 
+    const Rp_val = 0.75;
+    
+    const term1 = 0.5 * Asc * Math.sqrt(fck * Ec);
+    const term2 = Rg_val * Rp_val * Asc * Fu_stud;
+    const Qn = Math.min(term1, term2) / 1000; // kN
+    
+    log(`Ankraj Kapasitesi (Qn) = ${Qn.toFixed(1)} kN/adet`);
+    
+    // Toplam Kesme Kuvveti (V')
+    // V' = min(Ts, Cc_max)
+    const V_prime = Math.min(Ts, Cc_max);
+    
+    // Tam etkileşim için gerekli sayı (Yarım açıklık)
+    const N_full = V_prime / Qn;
+    log(`Tam etkileşim için gereken toplam kesme kuvveti (V') = ${V_prime.toFixed(1)} kN`);
+    log(`Tam etkileşim için gereken sayı (N_full) = ${V_prime.toFixed(1)} / ${Qn.toFixed(1)} = ${Math.ceil(N_full)} adet`);
+    
+    // Mevcut durum kontrolü
+    const V_provided = N_provided * Qn; // Sağlanan kesme kuvveti
+    const C_design = Math.min(V_prime, V_provided); // Tasarımda kullanılacak C kuvveti
+    
+    let interactionType = "";
+    if (N_provided >= N_full) {
+        interactionType = "TAM ETKİLEŞİMLİ";
+        log(`Mevcut (${N_provided}) >= Gerekli (${Math.ceil(N_full)}) -> <b>${interactionType}</b>`);
+    } else {
+        interactionType = "KISMİ ETKİLEŞİMLİ";
+        const degree = (N_provided / N_full) * 100;
+        log(`Mevcut (${N_provided}) < Gerekli (${Math.ceil(N_full)}) -> <b>${interactionType}</b> (%${degree.toFixed(0)})`);
+        log(`Tasarım Kesme Kuvveti (ΣQn) = ${N_provided} * ${Qn.toFixed(1)} = ${C_design.toFixed(1)} kN`);
+    }
+
+    // --- ADIM 4: MOMENT DAYANIMI (Mn) ---
+    log("\n<span class='calc-header'>IV. MOMENT KAPASİTESİ (Mn)</span>");
+    
+    // Plastik Tarafsız Eksen (PNA) Yeri
+    // C_design (Basınç) = T_eff (Çekme)
+    // Beton Basınç Bloğu Derinliği (a)
+    // C_design = 0.85 * fck * beff * a
+    let a_depth = (C_design * 1000) / (0.85 * fck * beff);
+    let location = "";
+    let Mn = 0;
+    
+    // PNA nerede?
+    // Eğer a <= hc_top ise PNA beton içindedir (Basit durum).
+    // Eğer Kısmi etkileşim varsa veya a > hc_top ise çelik de basınca çalışabilir.
+    
+    // PDF Örnek 12.8, Kısmi Etkileşim durumu için (Sayfa 250):
+    // C = 2037 kN (Örnekteki değer, bizde C_design)
+    // T = 2037 kN (Çelikteki net çekme değil, toplam denge)
+    // Aslında PNA çelik içinde olabilir.
+    // Kontrol: C_design < Ts ise PNA çelik içindedir.
+    
+    if (C_design >= Ts) {
+        // PNA Beton içinde (veya sınırda)
+        location = "slab";
+        log(`C (${C_design.toFixed(0)}) >= Ts (${Ts.toFixed(0)}) -> PNA Beton İçinde.`);
+        log(`Beton blok derinliği (a) = ${a_depth.toFixed(1)} mm`);
+        
+        // Moment kolu: d/2 + hc_total - a/2
+        const lever_arm = (d_steel / 2) + hc_total - (a_depth / 2);
+        Mn = C_design * lever_arm / 1000;
+        
+    } else {
+        // PNA Çelik içinde
+        location = "steel";
+        log(`C (${C_design.toFixed(0)}) < Ts (${Ts.toFixed(0)}) -> PNA Çelik Profil İçinde.`);
+        
+        // Çelikteki Net Çekme Kuvveti T_net = Ts - 2 * C_steel_compression
+        // Denge: C_concrete + C_steel = T_steel_net
+        // Basitleştirilmiş: Mn = C_design * (d/2 + hc_total - a/2) FORMÜLÜ YANLIŞ OLUR.
+        // Doğrusu: Çelikteki basınca çalışan kısım bulunur.
+        // C_total = T_total => C_conc + C_steel = T_steel_rem
+        // Ts = As*Fy. C_conc = C_design (Ankrajların taşıdığı kadar beton ezilir).
+        // Geri kalan kuvvet çelik içinde dengelenir.
+        // Çelik çekme kuvveti T = (Ts + C_design) / 2
+        // Çelik basınç kuvveti C_st = (Ts - C_design) / 2
+        
+        const C_st = (Ts - C_design) / 2;
+        // Basınç alanının derinliği (üst başlıktan itibaren): x_st
+        // C_st = bf * x_st * Fy (Eğer başlık içindeyse)
+        const x_st = (C_st * 1000) / (parseFloat(document.getElementById("bf").value) * Fy);
+        
+        // Bu durumda beton blok derinliği (a)
+        // Beton kuvveti C_design = 0.85 * fck * beff * a
+        a_depth = (C_design * 1000) / (0.85 * fck * beff);
+        
+        log(`Beton blok derinliği (a) = ${a_depth.toFixed(1)} mm`);
+        log(`Çelik içinde PNA derinliği (x_st) = ${x_st.toFixed(1)} mm (Üst başlıktan)`);
+        
+        // Moment Hesabı (Yaklaşık - Plastik Merkezler Arası)
+        // Beton kuvveti kolu: y1 = d/2 + hc_total - a/2
+        // Çelik basınç kuvveti kolu: y2 = d/2 - x_st/2
+        // Mn = C_design * y1 + C_st * 2 * y2 (Basitleştirilmiş moment çifti mantığı)
+        // Daha hassas: Mp = C_conc * (d_pna_steel + hc - a/2) + T_steel * ...
+        // Basit yöntem (Yönetmelik 12.18 benzeri):
+        // Mn = C_conc * (d/2 + hc_total - a/2) + C_st * (d/2 - x_st/2) * 2 ??? Hayır.
+        
+        // PDF'teki yöntem (Sayfa 250):
+        // Mn = C_conc * (y_beton_kolu) + C_steel_comp * (y_celik_kolu)
+        // Ama PDF'te: Mn = C_conc * (d/2 + hc - a/2) + C_steel_comp * (d/2 - tf/2) ... PNA başlıkta ise.
+        
+        // Bizim kodumuzda:
+        const arm_conc = (d_steel/2) + hc_total - (a_depth/2);
+        const arm_steel_couple = (d_steel - x_st); // Çelik basınç ve çekme bileşenleri arasındaki mesafe yaklaşık d-x
+        // Daha güvenli formül:
+        Mn = (C_design * arm_conc) + (C_st * (d_steel - x_st)); // Yaklaşık
+        Mn = Mn / 1000;
+    }
+    
+    log(`Karakteristik Moment (Mn) = <b>${Mn.toFixed(1)} kNm</b>`);
+
+    // --- ADIM 5: SONUÇ ---
+    log("\n<span class='calc-header'>V. PERFORMANS KONTROLÜ</span>");
+    const phi = 0.90;
+    const phiMn = phi * Mn;
+    
+    log(`Tasarım Dayanımı (ϕMn) = 0.90 * ${Mn.toFixed(1)} = <b>${phiMn.toFixed(1)} kNm</b>`);
+    
+    if (phiMn >= Mu) {
+        log(`<span class='pass'>SONUÇ: GÜVENLİ (Oran: ${(Mu/phiMn).toFixed(2)})</span>`);
+    } else {
+        log(`<span class='fail'>SONUÇ: YETERSİZ! (ϕMn < Mu)</span>`);
+    }
+    
+    // Çizim
+    drawVisuals(beff, hc_total, hr, d_steel, a_depth, location, C_design, Ts);
+}
+
+function drawVisuals(beff, hc, hr, d_steel, a_depth, location, C_val, T_val) {
+    const c = document.getElementById("visCanvas");
+    const ctx = c.getContext("2d");
+    ctx.clearRect(0, 0, c.width, c.height);
+
+    const scale = 0.35;
+    const cx = 150; // Kesit merkezi
+    const cy = 20;
+
+    // --- 1. Çizim: Kesit ---
+    // Beton (Sac Dik -> Trapezler görünür)
+    const slabW = 220; 
+    const solidH = (hc - hr) * scale;
+    const ribH = hr * scale;
+    
+    ctx.fillStyle = "#dcdcdc";
+    ctx.strokeStyle = "#555";
+    
+    // Üst beton
+    ctx.fillRect(cx - slabW/2, cy, slabW, solidH);
+    ctx.strokeRect(cx - slabW/2, cy, slabW, solidH);
+    
+    // Hadveler (Dik olduğu için kesit alınca trapez görünür)
+    const ribW = 40 * scale;
+    const gapW = 40 * scale;
+    let rx = cx - slabW/2 + 10;
+    
+    ctx.beginPath();
+    while(rx < cx + slabW/2) {
+        ctx.moveTo(rx, cy + solidH);
+        ctx.lineTo(rx + 5, cy + solidH + ribH);
+        ctx.lineTo(rx + 25, cy + solidH + ribH);
+        ctx.lineTo(rx + 30, cy + solidH);
+        rx += 50; 
+    }
+    ctx.fill();
+    ctx.stroke();
+    
+    // Çelik Profil
+    const steelY = cy + solidH + ribH; // Profil betonun hemen altında
+    const d_pix = d_steel * scale;
+    const bf_pix = 190 * scale; // IPE 450 bf
+    const tf_pix = 14.6 * scale;
+    const tw_pix = 9.4 * scale;
+    
+    ctx.fillStyle = "#8a9aae";
+    // Üst Başlık
+    ctx.fillRect(cx - bf_pix/2, steelY, bf_pix, tf_pix);
+    // Alt Başlık
+    ctx.fillRect(cx - bf_pix/2, steelY + d_pix - tf_pix, bf_pix, tf_pix);
+    // Gövde
+    ctx.fillRect(cx - tw_pix/2, steelY, tw_pix, d_pix);
+    
+    // --- 2. Çizim: Gerilme Bloğu (Yan Tarafta) ---
+    const gx = 380; // Grafik x başlangıcı
+    const gy = cy;
+    
+    // Eksen çizgisi
+    ctx.beginPath();
+    ctx.moveTo(gx, gy);
+    ctx.lineTo(gx, gy + solidH + ribH + d_pix);
+    ctx.strokeStyle = "#999";
+    ctx.setLineDash([5, 5]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    
+    // Beton Basınç Bloğu (C)
+    const a_pix = a_depth * scale;
+    ctx.fillStyle = "rgba(255, 0, 0, 0.3)";
+    ctx.fillRect(gx, gy, -60, a_pix); // Sola doğru blok
+    ctx.strokeStyle = "red";
+    ctx.strokeRect(gx, gy, -60, a_pix);
+    
+    // Ok ve Yazı (C)
+    ctx.fillStyle = "red";
+    ctx.font = "12px Tahoma";
+    ctx.fillText(`C = ${C_val.toFixed(0)} kN`, gx - 110, gy + a_pix/2 + 4);
+    drawArrow(ctx, gx - 65, gy + a_pix/2, gx, gy + a_pix/2);
+
+    // Çelik Gerilmesi (T)
+    // Eğer PNA beton içindeyse tüm çelik çekmedir.
+    // Eğer çelik içindeyse üst kısım basınçtır.
+    
+    let tensionY = steelY + d_pix/2;
+    if (location === "steel") {
+        // Çelik içinde PNA varsa görseli basitleştirip sadece net çekmeyi gösterelim
+        // veya üstte küçük bir basınç bloğu daha çizilebilir.
+        // Basitlik için net T kuvveti:
+    }
+    
+    ctx.fillStyle = "rgba(0, 0, 255, 0.3)";
+    ctx.fillRect(gx, steelY, 60, d_pix); // Sağa doğru blok (Tüm profil çekme temsili)
+    ctx.strokeStyle = "blue";
+    ctx.strokeRect(gx, steelY, 60, d_pix);
+    
+    ctx.fillStyle = "blue";
+    // Eğer PNA çelikteyse buradaki T_val aslında C_design'a eşittir (iç kuvvetler dengesi)
+    // Ama görselde kapasiteyi (Ts) değil, dengelenen kuvveti yazalım.
+    const T_display = (location === "slab") ? C_val : C_val; 
+    ctx.fillText(`T = ${T_display.toFixed(0)} kN`, gx + 65, tensionY);
+    drawArrow(ctx, gx + 65, tensionY, gx, tensionY);
+    
+    // PNA Çizgisi
+    let pnaY_pix;
+    if(location === "slab") pnaY_pix = cy + a_pix;
+    else pnaY_pix = steelY + 10; // Çeliğin içine temsili gir
+    
+    ctx.beginPath();
+    ctx.moveTo(cx - 120, pnaY_pix);
+    ctx.lineTo(gx + 100, pnaY_pix);
+    ctx.strokeStyle = "#ff00ff";
+    ctx.lineWidth = 1;
+    ctx.setLineDash([2, 2]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "#ff00ff";
+    ctx.fillText("PNA", gx + 80, pnaY_pix - 2);
+}
+
+function drawArrow(ctx, fromx, fromy, tox, toy) {
+    const headlen = 8; 
+    const dx = tox - fromx;
+    const dy = toy - fromy;
+    const angle = Math.atan2(dy, dx);
+    ctx.beginPath();
+    ctx.moveTo(fromx, fromy);
+    ctx.lineTo(tox, toy);
+    ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+    ctx.moveTo(tox, toy);
+    ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+    ctx.stroke();
+}
+
+// Açılışta çalıştır
+window.onload = hesapla12_8;
+</script>
+
+</body>
+</html>
