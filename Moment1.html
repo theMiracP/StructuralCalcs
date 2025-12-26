@@ -2,168 +2,151 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Moment Hesabı - XP Teması</title>
-<!-- XP teması için CSS -->
+<title>Moment Hesabı - XP</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
-<!-- XP Temalı Pencere -->
 <div class="kutu">
   <div class="baslik">
-    <span>Kiriş Moment Hesabı</span>
-    <button class="kapat" onclick="this.parentElement.parentElement.style.display='none'">X</button>
+    <span>Kiriş Moment Hesabı (Tekil Yük)</span>
+    <button class="kapat" onclick="window.location.href='index.html'">X</button>
   </div>
+
   <div class="icerik">
-    <!-- Kullanıcı inputları -->
-    <label>q (kN/m)</label>
-    <input type="number" id="yük" placeholder="Örn: 5">
+    
+    <label>Yük Değeri, P (kN):</label>
+    <input type="number" id="yuk" placeholder="Örn: 10">
 
-    <label>L (m)</label>
-    <input type="number" id="uzunluk" placeholder="Örn: 4">
+    <label>Kiriş Uzunluğu, L (m):</label>
+    <input type="number" id="uzunluk" placeholder="Örn: 5">
 
-    <label for="yukKonum">Yük Konumu (m)</label>
-    <input type="number" id="yukKonum" placeholder="0 ile kiriş uzunluğu arası">
+    <label>Yükün Sol Desteğe Uzaklığı, a (m):</label>
+    <input type="number" id="yukKonum" placeholder="Örn: 2.5">
 
-    <!-- Hesapla butonu -->
-    <button onclick="hesapla()">Hesapla</button>
+    <button class="xp-buton" onclick="hesapla()">Hesapla ve Çiz</button>
 
-    <!-- Hesap sonucu -->
-    <div class="sonuc" id="sonuc"></div>
+    <div id="sonuc" style="margin-top:10px; font-weight:bold; color:red; height:20px;"></div>
 
-    <!-- Canvas XP pencere içi -->
-    <canvas id="kirisCanvas" width="360" height="150" style="border:1px solid #000000; margin-top:10px;">
-      Tarayıcınız canvas desteklemiyor.
+    <canvas id="kirisCanvas" width="380" height="180" style="background:#fff; border:1px solid #7F9DB9; margin-top:10px; display:block;">
+      Tarayıcınız bu grafiği desteklemiyor.
     </canvas>
+
   </div>
 </div>
-
 <script>
 function hesapla() {
-  // -------------------------------
-  // 1. Kullanıcı inputlarını al
-  // -------------------------------
-  const uzunluk = parseFloat(document.getElementById("uzunluk").value); // L
-  const yuk = parseFloat(document.getElementById("yük").value);         // q
-  const yukKonum = parseFloat(document.getElementById("yukKonum")?.value || uzunluk/2);
+  // --- ADIM 1: Verileri Al ---
+  // HTML kutularından değerleri çekip sayıya (parseFloat) çeviriyoruz.
+  const L = parseFloat(document.getElementById("uzunluk").value);
+  const P = parseFloat(document.getElementById("yuk").value);
+  const a = parseFloat(document.getElementById("yukKonum").value);
 
-  if (isNaN(uzunluk) || isNaN(yuk) || isNaN(yukKonum)) {
-    document.getElementById("sonuc").innerText = "Lütfen geçerli değerler giriniz.";
+  // Hata kontrolü: Değerler boş mu veya mantıksız mı?
+  if (isNaN(L) || isNaN(P) || isNaN(a) || L <= 0) {
+    document.getElementById("sonuc").innerText = "Lütfen geçerli sayısal değerler giriniz!";
+    return;
+  }
+  if (a > L) {
+    document.getElementById("sonuc").innerText = "Hata: Yük konumu kirişten uzun olamaz!";
     return;
   }
 
-  // -------------------------------
-  // 2. Maksimum moment hesabı
-  // M = P * a * b / L
-  const a = yukKonum;
-  const b = uzunluk - a;
-  const momentMax = (yuk * a * b) / uzunluk;
-  document.getElementById("sonuc").innerText = "Maksimum Moment = " + momentMax.toFixed(2) + " kNm";
+  // --- ADIM 2: Hesaplama (Basit Kiriş Üzerinde Tekil Yük) ---
+  // Formül: M_max = (P * a * b) / L
+  // a: soldan mesafe, b: sağdan mesafe
+  const b = L - a;
+  const momentMax = (P * a * b) / L;
 
-  // -------------------------------
-  // 3. Canvas çizimi
-  // -------------------------------
+  // Sonucu ekrana yaz (virgülden sonra 2 basamak)
+  document.getElementById("sonuc").innerText = "Maksimum Moment = " + momentMax.toFixed(2) + " kNm";
+  document.getElementById("sonuc").style.color = "#000080";
+
+  // --- ADIM 3: Çizim (Canvas) ---
   const canvas = document.getElementById("kirisCanvas");
   const ctx = canvas.getContext("2d");
 
-  // 3a. Canvas arka planı (XP dialog gri)
-  ctx.fillStyle = "#C0C0C0";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // 3.1. Tuvali Temizle (Eski çizimi silmek için çok önemli)
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Ölçekleme
-  const scaleX = 300 / uzunluk;          // kiriş genişliği 300px
-  const scaleY = 100 / (momentMax*1.2); // moment diyagramı yüksekliği
+  // 3.2. Koordinat Ayarları
+  // Grafiği canvasın ortasına oturtmak için kenar boşlukları (margin)
+  const marginX = 40; 
+  const marginY = 30;
+  const drawWidth = canvas.width - 2 * marginX; // Çizilebilir genişlik
+  const drawHeight = 100; // Grafik yüksekliği
 
-  // -------------------------------
-  // 3b. Kiriş çizimi (XP gri)
-  ctx.fillStyle = "#808080"; 
-  ctx.fillRect(50, 120, 300, 10);
+  // Ölçekleme (Metreyi Piksele çevirme)
+  // Kirişin tamamı (L) -> drawWidth kadar piksele sığmalı
+  const scaleX = drawWidth / L;
+  
+  // Moment değerini yüksekliğe sığdırma
+  // Eğer moment 0 ise hatayı önlemek için 1 kabul et
+  const maxM_for_scale = momentMax === 0 ? 1 : momentMax;
+  const scaleY = drawHeight / maxM_for_scale;
 
-  // -------------------------------
-  // 3c. Yük oku çizimi (XP kırmızı)
-  ctx.fillStyle = "red";
-  const yukPoz = 50 + a*scaleX;
+  // Başlangıç noktası (Sol alt köşe referansı)
+  // Y ekseninde: 140. piksel referans olsun (aşağıdan yukarı çizeceğiz)
+  const zeroY = 140; 
+  const zeroX = marginX;
+
+  // --- 3.3. Eksenleri ve Kirişi Çiz ---
   ctx.beginPath();
-  ctx.moveTo(yukPoz, 110);
-  ctx.lineTo(yukPoz-5, 120);
-  ctx.lineTo(yukPoz+5, 120);
-  ctx.closePath();
+  ctx.strokeStyle = "#888";
+  ctx.lineWidth = 4;
+  ctx.moveTo(zeroX, zeroY); // Sol destek
+  ctx.lineTo(zeroX + L * scaleX, zeroY); // Sağ desteğe kadar çizgi
+  ctx.stroke();
+
+  // Destekleri (Üçgen) Çiz (Görsellik için)
+  drawSupport(ctx, zeroX, zeroY + 2); // Sol
+  drawSupport(ctx, zeroX + L * scaleX, zeroY + 2); // Sağ
+
+  // --- 3.4. Moment Diyagramını Çiz (Mavi Çizgi) ---
+  // 3 nokta var: Başlangıç (0,0), Tepe (a, Mmax), Bitiş (L,0)
+  
+  const peakX = zeroX + (a * scaleX);       // Tepe noktasının X pikseli
+  const peakY = zeroY - (momentMax * scaleY); // Tepe noktasının Y pikseli (yukarı gitmek için çıkarıyoruz)
+
+  ctx.beginPath();
+  ctx.moveTo(zeroX, zeroY); // 0 noktasından başla
+  ctx.lineTo(peakX, peakY); // Tepeye git
+  ctx.lineTo(zeroX + L * scaleX, zeroY); // Bitişe git
+  ctx.strokeStyle = "blue";
+  ctx.lineWidth = 2;
+  ctx.stroke();
+
+  // --- 3.5. Alanı Boya (Opsiyonel: Şeffaf mavi) ---
+  ctx.fillStyle = "rgba(0, 0, 255, 0.1)";
   ctx.fill();
 
-  // -------------------------------
-  // 3d. Moment diyagramı çizimi (XP mavi)
-  ctx.strokeStyle = "#0000FF"; // XP mavi ton
-  ctx.lineWidth = 2;           // kalın çizgi
-  ctx.beginPath();
-  for (let i=0; i<=300; i+=2) {
-    const x = 50 + i;
-    const Lpix = 300;
-    const aPix = a * scaleX;
-    let y;
-
-    if(i <= aPix){
-      y = 120 - (yuk * i * (Lpix - aPix) / Lpix) * scaleY;
-    } else {
-      y = 120 - (yuk * aPix * (Lpix - i) / Lpix) * scaleY;
-    }
-
-    if(i===0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  }
-  ctx.stroke();
-
-  // -------------------------------
-  // 3e. X ve Y eksenleri (XP stili)
-  ctx.strokeStyle = "#000080"; 
-  ctx.lineWidth = 1;
-  // X ekseni
-  ctx.beginPath();
-  ctx.moveTo(50, 120);
-  ctx.lineTo(350, 120);
-  ctx.stroke();
-  // Y ekseni
-  ctx.beginPath();
-  ctx.moveTo(50, 20);
-  ctx.lineTo(50, 130);
-  ctx.stroke();
-
-  // -------------------------------
-// 3f. Grid ve eksen değerleri
-// -------------------------------
-
-// X ekseni için 5 eşit aralık
-ctx.strokeStyle = "#A0A0A0"; // hafif gri grid
-ctx.lineWidth = 1;
-
-for(let i=0; i<=5; i++){
-  const x = 50 + (i*300/5);
-  ctx.beginPath();
-  ctx.moveTo(x, 20);      // üstten başla
-  ctx.lineTo(x, 120);     // x ekseni çizgisi
-  ctx.stroke();
-
-  // X eksen değerleri
-  ctx.fillStyle = "#000000";
-  ctx.font = "10px Tahoma";
-  const label = (i*uzunluk/5).toFixed(1);
-  ctx.fillText(label, x-6, 135); // 135 px altına yaz
+  // --- 3.6. Değerleri Yaz ---
+  ctx.fillStyle = "black";
+  ctx.font = "12px Tahoma";
+  
+  // Tepe noktasına değeri yaz
+  ctx.fillText(momentMax.toFixed(1) + " kNm", peakX - 20, peakY - 10);
+  
+  // Yükün konumunu gösteren kırmızı bir ok çiz
+  drawArrow(ctx, peakX, zeroY - 2, peakX, zeroY - 20); // Yükü göstermek için
+  ctx.fillStyle = "red";
+  ctx.fillText("P=" + P, peakX - 10, zeroY - 25);
 }
 
-// Y ekseni için 5 eşit aralık
-for(let i=0; i<=5; i++){
-  const y = 120 - (i*100/5);
-  ctx.beginPath();
-  ctx.moveTo(50, y);
-  ctx.lineTo(350, y); // yatay grid çizgisi
-  ctx.stroke();
-
-  // Y eksen değerleri
-  ctx.fillStyle = "#000000";
-  ctx.font = "10px Tahoma";
-  const label = (i*momentMax/5).toFixed(1);
-  ctx.fillText(label, 30, y+3); // 30 px sola yaz
+// Yardımcı Fonksiyon: Destek Üçgeni Çizimi
+function drawSupport(ctx, x, y) {
+    ctx.fillStyle = "#555";
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x - 5, y + 10);
+    ctx.lineTo(x + 5, y + 10);
+    ctx.fill();
 }
 
+// Yardımcı Fonksiyon: Yük Oku Çizimi
+function drawArrow(ctx, fromx, fromy, tox, toy) {
+    // Burada basitlik olsun diye yukarıdan aşağı sadece P harfini yazdık, 
+    // ama istenirse buraya ok çizim kodları eklenebilir.
 }
 </script>
 

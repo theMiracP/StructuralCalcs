@@ -2,22 +2,29 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Structural Calculator</title>
-<!-- Ortak CSS dosyası, tüm site XP temasıyla uyumlu olacak -->
+<title>İnşaat Mühendisliği Araçları</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <!-- Ana kutu: Menü burada yer alacak -->
-  <div class="kutu">
-    <h2>Hesaplar</h2>
-    <ul>
-      <!-- Moment1.html sayfasına bağlantı -->
-      <li><a href="Moment1.html">Kiriş Moment Hesabı</a></li>
-      <li><a href="Hesap3.html">Hesap3</a></li>
 
-      <!-- Gelecekte yeni hesap eklemek için örnek -->
-      <!-- <li><a href="Hesap2.html">Başka Hesap</a></li> -->
-    </ul>
+  <div class="kutu" style="width: 300px;">
+    <div class="baslik">
+      <span>Ana Menü</span>
+      <div class="kapat" onclick="window.close()">X</div>
+    </div>
+    
+    <div class="icerik">
+      <p>Lütfen yapmak istediğiniz hesabı seçiniz:</p>
+      <ul>
+        <li><a href="Moment1.html">Basit Kiriş Moment Hesabı</a></li>
+        <li><a href="Hesap3.html">Hesap3</a></li>
+        
+        <li><a href="#" style="color:gray; cursor:default; text-decoration:none;">Betonarme Hesabı (Yakında)</a></li>
+      </ul>
+      <br>
+      <div style="text-align:center; color:#888;">v1.0 - XP Edition</div>
+    </div>
   </div>
+
 </body>
 </html>
