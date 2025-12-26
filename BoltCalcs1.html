@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Civata Hesabı - XP</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* Sayfa düzeni stilleri */
+  .xp-container {
+    display: flex;
+    gap: 15px;
+  }
+  .xp-kolon-sol {
+    flex: 1;
+  }
+  .xp-kolon-sag {
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .gorsel-kutu {
+    border: 2px inset #fff;
+    background: #e3e3e3;
+    padding: 5px;
+    text-align: center;
+    font-size: 10px;
+  }
+  .gorsel-baslik {
+    font-weight: bold;
+    margin-bottom: 4px;
+    color: #000080;
+  }
+  select.xp-input, input.xp-input {
+    width: 93%;
+    padding: 3px;
+    margin-bottom: 5px;
+    border: 1px solid #7F9DB9;
+    font-family: 'Tahoma';
+  }
+  /* Birim değişimi için küçük etiketler */
+  .birim-etiket {
+      color: #666;
+      font-weight: normal;
+      font-size: 11px;
+      margin-left: 5px;
+  }
+  
+  .sonuc-tablosu {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 11px;
+  }
+  .sonuc-tablosu th, .sonuc-tablosu td {
+      border: 1px solid #7F9DB9;
+      padding: 4px;
+      text-align: left;
+  }
+  .sonuc-tablosu th {
+      background: #dce6f2;
+      color: #000080;
+  }
+  .sonuc-deger {
+      font-weight: bold;
+      color: green;
+  }
+</style>
+</head>
+<body>
+
+<div class="kutu" style="width: 650px;">
+  <div class="baslik">
+    <span>Civata Dayanım Hesabı (AISC 360-16)</span>
+    <button class="kapat" onclick="window.location.href='index.html'">X</button>
+  </div>
+
+  <div class="icerik">
+    
+    <div class="xp-container">
+      <div class="xp-kolon-sol">
+        
+        <div style="background:#ffffcc; border:1px solid #d4d0c8; padding:5px; margin-bottom:10px;">
+            <label style="display:inline-block; margin-right:10px; font-weight:bold;">Birim Sistemi:</label>
+            <select id="birimSistemi" onchange="birimDegistir()" style="font-family:Tahoma;">
+                <option value="US">Imperial (Kip, inch, ksi)</option>
+                <option value="SI">Metrik (kN, mm, N/mm²)</option>
+            </select>
+        </div>
+
+        <h4 style="margin: 5px 0; color:#000080;">1. Tasarım Yöntemi ve Malzeme</h4>
+        
+        <label>Yöntem:</label>
+        <select id="yontem" class="xp-input">
+            <option value="LRFD">LRFD (Yük ve Dayanım Faktörü)</option>
+            <option value="ASD">ASD (İzin Verilen Gerilme)</option>
+        </select>
+
+        <label>Civata Grubu:</label>
+        <select id="civataGrubu" class="xp-input">
+            <option value="A">Grup A (A325 / 8.8) - Yüksek Dayanımlı</option>
+            <option value="B">Grup B (A490 / 10.9) - Çok Yüksek Day.</option>
+        </select>
+
+        <label>Plaka Çekme Dayanımı, Fu <span id="lbl_fu" class="birim-etiket">(ksi)</span>:</label>
+        <input type="number" id="plakaFu" class="xp-input" placeholder="Örn: 65" value="65">
+
+        <h4 style="margin: 5px 0; color:#000080; border-top: 1px solid #ccc; padding-top:5px;">2. Geometri</h4>
+
+        <label>Civata Çapı, db <span id="lbl_db" class="birim-etiket">(inç)</span>:</label>
+        <input type="number" id="cap" class="xp-input" placeholder="Örn: 0.75" value="0.75">
+
+        <label>Civata Sayısı, N:</label>
+        <input type="number" id="adet" class="xp-input" placeholder="Örn: 2" value="2">
+        
+        <label>Diş Durumu:</label>
+        <select id="disDurumu" class="xp-input">
+            <option value="N">Dişler kesme düzleminde (Zayıf)</option>
+            <option value="X">Dişler kesme düzlemi dışında (Güçlü)</option>
+        </select>
+
+        <label>Plaka Kalınlığı, t <span id="lbl_t" class="birim-etiket">(inç)</span>:</label>
+        <input type="number" id="kalinlik" class="xp-input" placeholder="Örn: 0.375" value="0.375">
+
+        <label>Kenar Mesafesi, lc <span id="lbl_lc" class="birim-etiket">(inç)</span>:</label>
+        <input type="number" id="lcMesafe" class="xp-input" placeholder="Delik kenarından uca" value="1.5">
+
+      </div>
+
+      <div class="xp-kolon-sag">
+          <div class="gorsel-kutu">
+              <div class="gorsel-baslik">Kesme ve Ezilme</div>
+              <canvas id="canvasShearBear" width="180" height="120"></canvas>
+          </div>
+          
+          <div class="gorsel-kutu" style="margin-top:10px;">
+            <div class="gorsel-baslik">Yırtılma Mesafesi (lc)</div>
+            <canvas id="canvasTearout" width="180" height="100"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <hr style="border: 1px solid #fff; border-top: 1px solid #7F9DB9;">
+    
+    <div style="text-align: center;">
+        <button class="xp-buton" onclick="hesaplaBolts()" style="font-size:14px; padding: 8px 20px;">HESAPLA</button>
+    </div>
+
+    <div id="sonucAlani" style="display:none; margin-top:15px;">
+        <table class="sonuc-tablosu">
+            <thead>
+                <tr>
+                    <th>Kontrol Tipi</th>
+                    <th id="sonucBaslik">Dayanım</th>
+                    <th>Formül (AISC Referans)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Civata Çekme (Tension)</td>
+                    <td><span id="resTension" class="sonuc-deger">-</span></td>
+                    <td>0.56 * Fu_bolt * Ab</td>
+                </tr>
+                <tr>
+                    <td>Civata Kesme (Shear)</td>
+                    <td><span id="resShear" class="sonuc-deger">-</span></td>
+                    <td>0.34 * Fu_bolt * Ab (N tipi)</td>
+                </tr>
+                <tr>
+                    <td>Plaka Ezilmesi (Bearing)</td>
+                    <td><span id="resBearing" class="sonuc-deger">-</span></td>
+                    <td>1.8 * db * t * Fu_plaka</td>
+                </tr>
+                <tr>
+                    <td>Plaka Yırtılması (Tearout)</td>
+                    <td><span id="resTearout" class="sonuc-deger">-</span></td>
+                    <td>0.9 * lc * t * Fu_plaka</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// Sayfa yüklendiğinde çizimleri yap
+window.onload = function() {
+    drawVisuals();
+};
+
+// --- BİRİM DEĞİŞTİRME FONKSİYONU ---
+function birimDegistir() {
+    const birim = document.getElementById("birimSistemi").value;
+    
+    // Etiketleri Güncelle
+    if (birim === "SI") {
+        // Metrik Seçildi
+        document.getElementById("lbl_fu").innerText = "(N/mm²)";
+        document.getElementById("lbl_db").innerText = "(mm)";
+        document.getElementById("lbl_t").innerText = "(mm)";
+        document.getElementById("lbl_lc").innerText = "(mm)";
+        
+        // Varsayılan Değerleri Mantıklı Metrik Değerlere Çevir
+        document.getElementById("plakaFu").value = "450";  // ~65 ksi
+        document.getElementById("cap").value = "20";       // ~0.75 inch
+        document.getElementById("kalinlik").value = "10";  // ~0.375 inch
+        document.getElementById("lcMesafe").value = "40";  // ~1.5 inch
+    } else {
+        // Imperial Seçildi
+        document.getElementById("lbl_fu").innerText = "(ksi)";
+        document.getElementById("lbl_db").innerText = "(inç)";
+        document.getElementById("lbl_t").innerText = "(inç)";
+        document.getElementById("lbl_lc").innerText = "(inç)";
+        
+        // Varsayılanlara dön
+        document.getElementById("plakaFu").value = "65";
+        document.getElementById("cap").value = "0.75";
+        document.getElementById("kalinlik").value = "0.375";
+        document.getElementById("lcMesafe").value = "1.5";
+    }
+    
+    // Sonuç alanını gizle (yeni hesaplama gerekecek)
+    document.getElementById("sonucAlani").style.display = "none";
+}
+
+function hesaplaBolts() {
+  // --- GİRDİLERİ AL ---
+  const birim = document.getElementById("birimSistemi").value; // US veya SI
+  const yontem = document.getElementById("yontem").value;
+  const grup = document.getElementById("civataGrubu").value;
+  const threads = document.getElementById("disDurumu").value;
+  
+  let db = parseFloat(document.getElementById("cap").value);
+  let t = parseFloat(document.getElementById("kalinlik").value);
+  let Fu_plate = parseFloat(document.getElementById("plakaFu").value);
+  let lc = parseFloat(document.getElementById("lcMesafe").value);
+  let N = parseFloat(document.getElementById("adet").value);
+
+  if (isNaN(db) || isNaN(t) || isNaN(Fu_plate) || isNaN(lc) || N <= 0) {
+    alert("Lütfen geçerli sayısal değerler giriniz.");
+    return;
+  }
+
+  // --- BİRİM DÖNÜŞÜMÜ (SI -> IMPERIAL) ---
+  // Hesaplamalar AISC standardına sadık kalmak için arkada hep Imperial çalışır.
+  if (birim === "SI") {
+      db = db / 25.4;        // mm -> inch
+      t  = t / 25.4;         // mm -> inch
+      lc = lc / 25.4;        // mm -> inch
+      Fu_plate = Fu_plate / 6.89476; // N/mm2 -> ksi
+  }
+
+  // --- SABİTLER ---
+  let Fu_bolt;
+  // A325=120ksi, A490=150ksi (Bunlar standarttır)
+  if (grup === "A") Fu_bolt = 120; 
+  else if (grup === "B") Fu_bolt = 150;
+  else Fu_bolt = 120;
+
+  const Ab = Math.PI * Math.pow(db / 2, 2); // Civata alanı (inç kare)
+  const shearModifier = (threads === "X") ? 1.25 : 1.0;
+
+  // --- HESAPLAMALAR (Kip cinsinden) ---
+  let phi_Tens, phi_Shear, phi_Bear, phi_Tear;
+
+  if (yontem === "LRFD") {
+      phi_Tens = 0.56; 
+      phi_Shear = 0.34 * shearModifier; 
+      phi_Bear = 1.8; 
+      phi_Tear = 0.9; 
+      
+      var birimText = (birim === "SI") ? "kN" : "Kip";
+      document.getElementById("sonucBaslik").innerText = "Tasarım Dayanımı, ϕRn (" + birimText + ")";
+  } else {
+      phi_Tens = 0.38; 
+      phi_Shear = 0.23 * shearModifier; 
+      phi_Bear = 1.2; 
+      phi_Tear = 0.6;
+      
+      var birimText = (birim === "SI") ? "kN" : "Kip";
+      document.getElementById("sonucBaslik").innerText = "İzin Verilen Dayanım, Rn/Ω (" + birimText + ")";
+  }
+
+  // Temel Formüller (Sonuçlar KIP cinsinden)
+  const res_Tens = phi_Tens * Fu_bolt * Ab * N;
+  const res_Shear = phi_Shear * Fu_bolt * Ab * N;
+  const res_Bear = phi_Bear * db * t * Fu_plate * N;
+  const res_Tear = phi_Tear * lc * t * Fu_plate * N;
+
+  // --- SONUÇ DÖNÜŞÜMÜ (IMPERIAL -> SI GEREKİRSE) ---
+  let factor = 1.0;
+  if (birim === "SI") {
+      factor = 4.44822; // 1 Kip = 4.448 kN
+  }
+
+  // --- EKRANA YAZ ---
+  document.getElementById("sonucAlani").style.display = "block";
+  document.getElementById("resTension").innerText = (res_Tens * factor).toFixed(2);
+  document.getElementById("resShear").innerText = (res_Shear * factor).toFixed(2);
+  document.getElementById("resBearing").innerText = (res_Bear * factor).toFixed(2);
+  document.getElementById("resTearout").innerText = (res_Tear * factor).toFixed(2);
+}
+
+// --- GÖRSEL ÇİZİM FONKSİYONLARI (Açık Halde) ---
+
+function drawVisuals() {
+    // 1. Canvas: Kesme ve Ezilme
+    const c1 = document.getElementById("canvasShearBear");
+    const ctx1 = c1.getContext("2d");
+    
+    // Temizle
+    ctx1.clearRect(0,0,c1.width, c1.height);
+    
+    // Gri Plaka
+    ctx1.fillStyle = "#C0C0C0"; 
+    ctx1.fillRect(20, 40, 140, 40); 
+    ctx1.strokeRect(20, 40, 140, 40);
+    
+    // Delik (Beyaz)
+    ctx1.fillStyle = "#fff"; 
+    ctx1.beginPath(); 
+    ctx1.arc(90, 60, 15, 0, 2*Math.PI); 
+    ctx1.fill(); 
+    ctx1.stroke();
+    
+    // Civata Gövdesi
+    ctx1.fillStyle = "#555"; 
+    ctx1.beginPath(); 
+    ctx1.arc(90, 60, 12, 0, 2*Math.PI); 
+    ctx1.fill();
+    
+    // Kesme Oku (Kırmızı)
+    drawArrow(ctx1, 90, 20, 90, 45, "red", 3);
+    ctx1.fillStyle="red"; 
+    ctx1.font="10px Tahoma"; 
+    ctx1.fillText("Kesme (Shear)", 95, 30);
+    
+    // Ezilme Bölgesi (Mavi Yay)
+    ctx1.beginPath(); 
+    ctx1.strokeStyle = "blue"; 
+    ctx1.lineWidth = 3;
+    ctx1.arc(90, 60, 15, -Math.PI/2, Math.PI/2); 
+    ctx1.stroke();
+    ctx1.fillStyle="blue"; 
+    ctx1.fillText("Ezilme", 105, 65);
+
+    // 2. Canvas: Yırtılma Mesafesi (lc)
+    const c2 = document.getElementById("canvasTearout");
+    const ctx2 = c2.getContext("2d");
+    
+    // Temizle
+    ctx2.clearRect(0,0,c2.width, c2.height);
+    
+    // Plaka Ucu Çizimi
+    ctx2.fillStyle = "#C0C0C0";
+    ctx2.beginPath(); 
+    ctx2.moveTo(10, 20); 
+    ctx2.lineTo(120, 20); 
+    ctx2.lineTo(120, 80); 
+    ctx2.lineTo(10, 80); 
+    ctx2.fill(); 
+    ctx2.stroke();
+    
+    const holeX = 60, holeY = 50, holeR = 15;
+    
+    // Delik
+    ctx2.fillStyle = "#fff"; 
+    ctx2.beginPath(); 
+    ctx2.arc(holeX, holeY, holeR, 0, 2*Math.PI); 
+    ctx2.fill(); 
+    ctx2.stroke();
+    
+    // Yırtılma Bloğu (Kesikli Çizgi)
+    ctx2.setLineDash([3, 2]); 
+    ctx2.strokeStyle = "red";
+    ctx2.beginPath(); 
+    ctx2.moveTo(holeX+holeR, holeY-holeR); 
+    ctx2.lineTo(120, holeY-holeR); 
+    ctx2.lineTo(120, holeY+holeR); 
+    ctx2.lineTo(holeX+holeR, holeY+holeR); 
+    ctx2.stroke(); 
+    ctx2.setLineDash([]); // Normale dön
+    
+    // Ölçü Çizgisi
+    ctx2.strokeStyle = "black";
+    drawDimensionLine(ctx2, holeX+holeR, 15, 120, 15);
+    
+    // Yazı
+    ctx2.fillStyle = "black"; 
+    ctx2.font = "bold 12px Tahoma"; 
+    ctx2.textAlign = "center";
+    ctx2.fillText("lc", (holeX+holeR+120)/2, 12);
+}
+
+// Yardımcı: Ok Çizimi
+function drawArrow(ctx, fromx, fromy, tox, toy, color, width) {
+    var headlen = 10; 
+    var dx = tox - fromx; 
+    var dy = toy - fromy; 
+    var angle = Math.atan2(dy, dx);
+    
+    ctx.strokeStyle = color; 
+    ctx.lineWidth = width;
+    ctx.beginPath(); 
+    ctx.moveTo(fromx, fromy); 
+    ctx.lineTo(tox, toy);
+    // Ok uçları
+    ctx.lineTo(tox-headlen*Math.cos(angle-Math.PI/6), toy-headlen*Math.sin(angle-Math.PI/6));
+    ctx.moveTo(tox, toy); 
+    ctx.lineTo(tox-headlen*Math.cos(angle+Math.PI/6), toy-headlen*Math.sin(angle+Math.PI/6)); 
+    ctx.stroke();
+}
+
+// Yardımcı: Ölçü Çizgisi
+function drawDimensionLine(ctx, x1, y1, x2, y2) {
+    // Sol sınır
+    ctx.beginPath(); ctx.moveTo(x1, y1+5); ctx.lineTo(x1, y1-5); ctx.stroke();
+    // Sağ sınır
+    ctx.beginPath(); ctx.moveTo(x2, y2+5); ctx.lineTo(x2, y2-5); ctx.stroke();
+    // Yatay çizgi
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+}
+</script>
+
+</body>
+</html>
