@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segui Ex 5.19 - Base Plate Design (XP Style)</title>
+    
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        /* -----------------------------------------------------------
+           Windows XP (Luna) Teması Entegrasyonu
+        ----------------------------------------------------------- */
+        body {
+            background-color: #3A6EA5;
+            font-family: 'Tahoma', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+        }
+
+        .kutu {
+            width: 850px;
+            background-color: #ECE9D8;
+            border: 3px solid #0055EA;
+            border-radius: 8px 8px 0 0;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .baslik {
+            background: linear-gradient(to bottom, #0058EE 0%, #3593FF 4%, #288EFF 18%, #127dff 44%, #0369fc 100%);
+            height: 30px;
+            padding: 5px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px #000;
+            font-size: 14px;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .baslik span::before { content: "🏗️ "; }
+
+        .kapat {
+            background: linear-gradient(to bottom, #ff5c4a, #d42814);
+            border: 1px solid #fff;
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: sans-serif;
+            line-height: 18px;
+            text-align: center;
+        }
+        .kapat:hover { background: #ff2a14; }
+
+        .icerik { padding: 15px; font-size: 11px; color: #000; }
+
+        /* Toolbar */
+        .toolbar {
+            background: #f0f0f0;
+            border-bottom: 1px solid #999;
+            padding: 5px 15px;
+            margin: -15px -15px 15px -15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .toolbar a {
+            text-decoration: none;
+            color: #003c74;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            padding: 3px 5px;
+            border: 1px solid transparent;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .toolbar a:hover {
+            border: 1px solid #999;
+            background: #e1e1e1;
+            border-radius: 3px;
+        }
+
+        /* Düzen */
+        .main-layout { display: flex; gap: 15px; }
+        .left-panel { width: 300px; display: flex; flex-direction: column; gap: 10px; }
+        .right-panel { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+
+        /* Gruplar */
+        .group-box {
+            background: #fff;
+            border: 1px solid #7F9DB9;
+            padding: 8px;
+            border-radius: 2px;
+        }
+        .group-title {
+            color: #003c74;
+            border-bottom: 1px solid #003c74;
+            margin-bottom: 5px;
+            padding-bottom: 2px;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        /* Form Elemanları */
+        .input-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3px;
+        }
+        .input-row label { width: 60%; }
+        input[type=number], select {
+            width: 35%;
+            padding: 2px;
+            border: 1px solid #7F9DB9;
+            font-family: 'Tahoma';
+            font-size: 11px;
+            text-align: right;
+        }
+
+        .xp-buton {
+            background: #f0f0f0;
+            border: 1px solid #003c74;
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-family: 'Tahoma';
+            font-weight: bold;
+            width: 100%;
+            margin-top: 5px;
+        }
+        .xp-buton:hover { box-shadow: inset 0 0 3px #ffd700; }
+
+        /* Görselleştirme */
+        .visual-container {
+            background: #333;
+            border: 2px solid #7F9DB9;
+            height: 250px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* Rapor */
+        #report {
+            background: #fff;
+            border: 1px inset #fff;
+            padding: 10px;
+            height: 250px;
+            overflow-y: scroll;
+            font-family: 'Times New Roman', serif;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        
+        .warn { color: red; font-weight: bold; }
+        .ok { color: green; font-weight: bold; }
+
+    </style>
+</head>
+<body>
+
+<div class="kutu">
+    <div class="baslik">
+        <span>Segui Ex. 5.19 - Kolon Taban Plakası (Base Plate)</span>
+        <button class="kapat" onclick="window.close()">X</button>
+    </div>
+
+    <div class="icerik">
+        <div class="toolbar">
+            <img src="https://img.icons8.com/color/48/open-book.png" width="16" height="16" alt="Book">
+            <a onclick="openTheoryWindow()">Kitap Sayfalarını Aç (Soru & Çözüm)</a>
+        </div>
+
+        <div class="main-layout">
+            <div class="left-panel">
+                
+                <div class="group-box">
+                    <div class="group-title">Genel Ayarlar</div>
+                    <div class="input-row">
+                        <label>Birim Sistemi:</label>
+                        <select id="unitSystem" onchange="toggleUnits()">
+                            <option value="imperial">Imperial (US)</option>
+                            <option value="metric">Metrik (SI)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="group-box">
+                    <div class="group-title">Yükler ve Malzeme</div>
+                    <div class="input-row">
+                        <label>Ölü Yük (D): <span class="unit-force">kips</span></label>
+                        <input type="number" id="loadD" value="98" oninput="calculate()">
+                    </div>
+                    <div class="input-row">
+                        <label>Hareketli Yük (L): <span class="unit-force">kips</span></label>
+                        <input type="number" id="loadL" value="145" oninput="calculate()">
+                    </div>
+                    <div class="input-row">
+                        <label>Beton (f'c): <span class="unit-stress">ksi</span></label>
+                        <input type="number" id="fc" value="3" oninput="calculate()">
+                    </div>
+                    <div class="input-row">
+                        <label>Çelik (Fy): <span class="unit-stress">ksi</span></label>
+                        <input type="number" id="Fy" value="36" oninput="calculate()">
+                    </div>
+                </div>
+
+                <div class="group-box">
+                    <div class="group-title">Geometri <span class="unit-len">(in)</span></div>
+                    <div class="input-row">
+                        <label>Kolon Derinliği (d):</label>
+                        <input type="number" id="col_d" value="10.0" oninput="drawVisuals(); calculate()">
+                    </div>
+                    <div class="input-row">
+                        <label>Kolon Başlığı (bf):</label>
+                        <input type="number" id="col_bf" value="10.0" oninput="drawVisuals(); calculate()">
+                    </div>
+                    <hr style="border:0; border-top:1px dashed #ccc; margin:5px 0;">
+                    <div class="input-row">
+                        <label>Beton Kaide (Pier) B:</label>
+                        <input type="number" id="pier_B" value="18" oninput="drawVisuals(); calculate()">
+                    </div>
+                    <div class="input-row">
+                        <label>Beton Kaide (Pier) N:</label>
+                        <input type="number" id="pier_N" value="18" oninput="drawVisuals(); calculate()">
+                    </div>
+                </div>
+
+                <div class="group-box" style="background:#eaffea; border-color:#008000;">
+                    <div class="group-title">Tasarım / Deneme <span class="unit-len">(in)</span></div>
+                    <div class="input-row">
+                        <label>Plaka Genişliği (B):</label>
+                        <input type="number" id="plate_B" value="13" oninput="drawVisuals(); calculate()">
+                    </div>
+                    <div class="input-row">
+                        <label>Plaka Uzunluğu (N):</label>
+                        <input type="number" id="plate_N" value="13" oninput="drawVisuals(); calculate()">
+                    </div>
+                    <button class="xp-buton" onclick="autoSize()">Min. Alanı Öner</button>
+                </div>
+
+            </div>
+
+            <div class="right-panel">
+                <div class="visual-container">
+                    <svg id="mainSvg" width="400" height="250" viewBox="0 0 400 250"></svg>
+                    <div style="position:absolute; bottom:5px; right:5px; color:white; font-size:10px;">PLAN GÖRÜNÜMÜ</div>
+                </div>
+
+                <div id="report">
+                    <p style="color:#666;">Hesaplama sonuçları burada görünecek...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentUnit = 'imperial';
+
+    // Sayfa Yüklendiğinde
+    window.onload = function() {
+        updateLabels();
+        calculate();
+    };
+
+    // --- Birim Sistemi ---
+    function toggleUnits() {
+        const oldUnit = currentUnit;
+        currentUnit = document.getElementById('unitSystem').value;
+        updateLabels();
+
+        // Değerleri Dönüştür
+        const forceFields = ['loadD', 'loadL'];
+        const stressFields = ['fc', 'Fy'];
+        const lenFields = ['col_d', 'col_bf', 'pier_B', 'pier_N', 'plate_B', 'plate_N'];
+
+        if (oldUnit === 'imperial' && currentUnit === 'metric') {
+            // US -> SI
+            forceFields.forEach(id => { let el = document.getElementById(id); el.value = (parseFloat(el.value) * 4.44822).toFixed(1); });
+            stressFields.forEach(id => { let el = document.getElementById(id); el.value = (parseFloat(el.value) * 6.89476).toFixed(1); });
+            lenFields.forEach(id => { let el = document.getElementById(id); el.value = (parseFloat(el.value) * 25.4).toFixed(0); });
+        } else if (oldUnit === 'metric' && currentUnit === 'imperial') {
+            // SI -> US
+            forceFields.forEach(id => { let el = document.getElementById(id); el.value = (parseFloat(el.value) / 4.44822).toFixed(1); });
+            stressFields.forEach(id => { let el = document.getElementById(id); el.value = (parseFloat(el.value) / 6.89476).toFixed(2); }); // Stress daha hassas olsun
+            lenFields.forEach(id => { let el = document.getElementById(id); el.value = (parseFloat(el.value) / 25.4).toFixed(1); });
+        }
+        calculate();
+    }
+
+    function updateLabels() {
+        const uF = currentUnit === 'imperial' ? "kips" : "kN";
+        const uS = currentUnit === 'imperial' ? "ksi" : "MPa";
+        const uL = currentUnit === 'imperial' ? "(in)" : "(mm)";
+
+        document.querySelectorAll('.unit-force').forEach(e => e.innerText = uF);
+        document.querySelectorAll('.unit-stress').forEach(e => e.innerText = uS);
+        document.querySelectorAll('.unit-len').forEach(e => e.innerText = uL);
+    }
+
+    // --- Çizim (SVG) ---
+    function drawVisuals() {
+        // Girdileri al (Normalize etmek için)
+        // Çizim her zaman "piksel" biriminde orantısal olacak
+        let pB = parseFloat(document.getElementById('pier_B').value) || 1;
+        let pN = parseFloat(document.getElementById('pier_N').value) || 1;
+        let plB = parseFloat(document.getElementById('plate_B').value) || 0.5;
+        let plN = parseFloat(document.getElementById('plate_N').value) || 0.5;
+        let cD = parseFloat(document.getElementById('col_d').value) || 0.3;
+        let cB = parseFloat(document.getElementById('col_bf').value) || 0.3;
+
+        const svg = document.getElementById('mainSvg');
+        const cx = 200, cy = 125;
+        
+        // Ölçekleme (En büyük boyut 220px e sığsın)
+        const maxDim = Math.max(pB, pN);
+        const scale = 220 / maxDim;
+
+        // Koordinat Hesapları (Ortalayarak)
+        const pW_px = pB * scale; const pH_px = pN * scale;
+        const plW_px = plB * scale; const plH_px = plN * scale;
+        const cd_px = cD * scale; const cb_px = cB * scale;
+
+        // Renkler
+        const colConcrete = "#d3d3d3"; // Gri
+        const colPlate = "#87cefa";    // Açık Mavi
+        const colSteel = "#333";       // Koyu Gri
+
+        let html = "";
+        
+        // 1. Beton Kaide (Pier)
+        html += `<rect x="${cx - pW_px/2}" y="${cy - pH_px/2}" width="${pW_px}" height="${pH_px}" fill="${colConcrete}" stroke="#666" stroke-dasharray="4"/>`;
+        html += `<text x="${cx - pW_px/2}" y="${cy - pH_px/2 - 5}" fill="#999" font-size="10">Pier (${pB}x${pN})</text>`;
+
+        // 2. Taban Plakası
+        html += `<rect x="${cx - plW_px/2}" y="${cy - plH_px/2}" width="${plW_px}" height="${plH_px}" fill="${colPlate}" stroke="#0055EA" fill-opacity="0.6"/>`;
+        html += `<text x="${cx}" y="${cy + plH_px/2 + 12}" fill="#0055EA" font-size="10" text-anchor="middle">Plate (${plB}x${plN})</text>`;
+
+        // 3. Kolon (I-Kesit - Basit Gösterim)
+        // I profilin "d"si yükseklik (ekranda Y ekseni varsayalım, ama planda genellikle H profili çizilir. N ekseni boyunca d olur.)
+        // Segui Fig 5.45'e göre: d düşeyde, bf yatayda.
+        // Web kalınlığı görsel olarak sabit olsun
+        const tw_px = cd_px * 0.1; 
+        const tf_px = cd_px * 0.1;
+        
+        // Top Flange
+        html += `<rect x="${cx - cb_px/2}" y="${cy - cd_px/2}" width="${cb_px}" height="${tf_px}" fill="${colSteel}"/>`;
+        // Bottom Flange
+        html += `<rect x="${cx - cb_px/2}" y="${cy + cd_px/2 - tf_px}" width="${cb_px}" height="${tf_px}" fill="${colSteel}"/>`;
+        // Web
+        html += `<rect x="${cx - tw_px/2}" y="${cy - cd_px/2}" width="${tw_px}" height="${cd_px}" fill="${colSteel}"/>`;
+
+        // Ölçüler (m ve n gösterimi)
+        // m = (N - 0.95d)/2 -> Dikey boşluk
+        // n = (B - 0.8bf)/2 -> Yatay boşluk
+        
+        // Oklar (Basit)
+        // n (Sağ taraf)
+        if (plW_px > cb_px) {
+            html += `<line x1="${cx + cb_px/2}" y1="${cy}" x2="${cx + plW_px/2}" y2="${cy}" stroke="red" marker-end="url(#arrow)"/>`;
+            html += `<text x="${cx + (plW_px+cb_px)/4}" y="${cy - 2}" fill="red" font-size="9">n</text>`;
+        }
+        // m (Üst taraf)
+        if (plH_px > cd_px) {
+            html += `<line x1="${cx}" y1="${cy - cd_px/2}" x2="${cx}" y2="${cy - plH_px/2}" stroke="red" marker-end="url(#arrow)"/>`;
+            html += `<text x="${cx + 2}" y="${cy - (plH_px+cd_px)/4}" fill="red" font-size="9">m</text>`;
+        }
+
+        html += `<defs><marker id="arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L0,6 L6,3 z" fill="red" /></marker></defs>`;
+
+        svg.innerHTML = html;
+    }
+
+    // --- Hesap Motoru ---
+    function calculate() {
+        // Girdileri Al
+        const D = parseFloat(document.getElementById('loadD').value);
+        const L = parseFloat(document.getElementById('loadL').value);
+        const fc = parseFloat(document.getElementById('fc').value);
+        const Fy = parseFloat(document.getElementById('Fy').value);
+        const d = parseFloat(document.getElementById('col_d').value);
+        const bf = parseFloat(document.getElementById('col_bf').value);
+        const pB = parseFloat(document.getElementById('pier_B').value);
+        const pN = parseFloat(document.getElementById('pier_N').value);
+        const plB = parseFloat(document.getElementById('plate_B').value);
+        const plN = parseFloat(document.getElementById('plate_N').value);
+
+        // Hesaplamalar için "Internal Units" (Imperial) kullanacağız.
+        // Eğer birim metrik ise, önce imperial'e çevir, hesapla, sonra sonucu geri çevir.
+        
+        let i_D, i_L, i_fc, i_Fy, i_d, i_bf, i_pB, i_pN, i_plB, i_plN;
+
+        if (currentUnit === 'metric') {
+            i_D = D / 4.44822; i_L = L / 4.44822;
+            i_fc = fc / 6.89476; i_Fy = Fy / 6.89476;
+            i_d = d / 25.4; i_bf = bf / 25.4;
+            i_pB = pB / 25.4; i_pN = pN / 25.4;
+            i_plB = plB / 25.4; i_plN = plN / 25.4;
+        } else {
+            i_D = D; i_L = L; i_fc = fc; i_Fy = Fy;
+            i_d = d; i_bf = bf; i_pB = pB; i_pN = pN; i_plB = plB; i_plN = plN;
+        }
+
+        // --- LRFD ---
+        const Pu = 1.2 * i_D + 1.6 * i_L;
+        const A2 = i_pB * i_pN;
+        // Gerekli A1 hesabı (Book style iteration logic)
+        // 1. Durum: sqrt(A2/A1) = 2 (Max artış)
+        // phi Pp = 0.65 * 1.7 * fc * A1 >= Pu  ->  A1 >= Pu / (0.65*1.7*fc)
+        const A1_min_limit = Pu / (0.65 * 1.7 * i_fc);
+        
+        // 2. Durum: sqrt(A2/A1) < 2
+        // phi Pp = 0.65 * 0.85 * fc * A1 * sqrt(A2/A1) >= Pu
+        // A1 * sqrt(A2)/sqrt(A1) = sqrt(A1)*sqrt(A2)
+        // 0.65 * 0.85 * fc * sqrt(A1*A2) >= Pu
+        // sqrt(A1) >= Pu / (0.5525 * fc * sqrt(A2))
+        // A1 >= [ Pu / (0.5525 * fc * sqrt(A2)) ]^2
+        const A1_calc = Math.pow(Pu / (0.65 * 0.85 * i_fc * Math.sqrt(A2)), 2);
+
+        // Hangi A1 geçerli?
+        let A1_req_LRFD;
+        // Eğer A1_calc kullanırsak, ratio'yu kontrol et
+        const ratio_calc = Math.sqrt(A2 / A1_calc);
+        if (ratio_calc <= 2) {
+            A1_req_LRFD = A1_calc;
+        } else {
+            A1_req_LRFD = A1_min_limit;
+        }
+        
+        // --- ASD ---
+        const Pa = i_D + i_L;
+        const omega = 2.31;
+        // Benzer mantık: Pp/omega >= Pa
+        // Limit: (1.7 fc A1) / 2.31 >= Pa -> A1 >= Pa * 2.31 / (1.7 fc)
+        const A1_min_limit_ASD = (Pa * 2.31) / (1.7 * i_fc);
+        // Normal: (0.85 fc A1 sqrt(A2/A1)) / 2.31 >= Pa
+        // sqrt(A1) >= (Pa * 2.31) / (0.85 fc sqrt(A2))
+        const A1_calc_ASD = Math.pow( (Pa * 2.31) / (0.85 * i_fc * Math.sqrt(A2)), 2);
+
+        let A1_req_ASD;
+        if (Math.sqrt(A2 / A1_calc_ASD) <= 2) {
+            A1_req_ASD = A1_calc_ASD;
+        } else {
+            A1_req_ASD = A1_min_limit_ASD;
+        }
+
+        // --- Kalınlık Hesabı (Girilen BxN için) ---
+        const A_prov = i_plB * i_plN;
+        const m = (i_plN - 0.95 * i_d) / 2;
+        const n = (i_plB - 0.8 * i_bf) / 2;
+        const n_prime = (1/4) * Math.sqrt(i_d * i_bf);
+        const l = Math.max(m, n, n_prime); // lambda = 1 (conservative)
+
+        // LRFD t
+        // phi Pp kontrolü
+        const ratio_prov = Math.min(Math.sqrt(A2/A_prov), 2);
+        const phiPp = 0.65 * 0.85 * i_fc * A_prov * ratio_prov;
+        
+        const t_req_LRFD = l * Math.sqrt((2 * Pu) / (0.9 * i_Fy * i_plB * i_plN));
+        
+        // ASD t
+        const Pp_omega = (0.85 * i_fc * A_prov * ratio_prov) / 2.31;
+        const t_req_ASD = l * Math.sqrt((2 * Pa) / ((i_Fy/1.67) * i_plB * i_plN));
+
+
+        // --- Rapor Yazdır ---
+        // Birim etiketleri
+        const uF = currentUnit === 'imperial' ? "kips" : "kN";
+        const uS = currentUnit === 'imperial' ? "ksi" : "MPa";
+        const uL = currentUnit === 'imperial' ? "in" : "mm";
+        const uA = currentUnit === 'imperial' ? "in^2" : "mm^2";
+
+        // Değerleri Gösterim için formatla
+        const d_Pu = currentUnit==='metric' ? (Pu*4.448).toFixed(1) : Pu.toFixed(1);
+        const d_Pa = currentUnit==='metric' ? (Pa*4.448).toFixed(1) : Pa.toFixed(1);
+        const d_A1_LRFD = currentUnit==='metric' ? (A1_req_LRFD*645.16).toFixed(0) : A1_req_LRFD.toFixed(1);
+        const d_A1_ASD = currentUnit==='metric' ? (A1_req_ASD*645.16).toFixed(0) : A1_req_ASD.toFixed(1);
+        const d_Aprov = currentUnit==='metric' ? (A_prov*645.16).toFixed(0) : A_prov.toFixed(1);
+        const d_phiPp = currentUnit==='metric' ? (phiPp*4.448).toFixed(1) : phiPp.toFixed(1);
+        const d_PpOm = currentUnit==='metric' ? (Pp_omega*4.448).toFixed(1) : Pp_omega.toFixed(1);
+        const d_treq_LRFD = currentUnit==='metric' ? (t_req_LRFD*25.4).toFixed(2) : t_req_LRFD.toFixed(3);
+        const d_treq_ASD = currentUnit==='metric' ? (t_req_ASD*25.4).toFixed(2) : t_req_ASD.toFixed(3);
+        const d_l = currentUnit==='metric' ? (l*25.4).toFixed(2) : l.toFixed(2);
+
+
+        let html = `<h4>ANALİZ RAPORU</h4>`;
+        
+        // 1. Yükler
+        html += `<p><strong>1. Tasarım Yükleri:</strong><br>`;
+        html += `LRFD ($P_u = 1.2D + 1.6L$): <b>${d_Pu} ${uF}</b><br>`;
+        html += `ASD ($P_a = D + L$): <b>${d_Pa} ${uF}</b></p>`;
+
+        // 2. Gerekli Alan
+        html += `<p><strong>2. Gerekli Plaka Alanı ($A_1$):</strong><br>`;
+        html += `Beton dayanımı hesaplanır (Limit $\\sqrt{A_2/A_1} \\le 2$).<br>`;
+        html += `LRFD Gereken $A_1$: <b>${d_A1_LRFD} ${uA}</b><br>`;
+        html += `ASD Gereken $A_1$: <b>${d_A1_ASD} ${uA}</b></p>`;
+
+        // 3. Seçilen Plaka Kontrolü
+        const statusLRFD = phiPp >= Pu ? "<span class='ok'>YETERLİ (OK)</span>" : "<span class='warn'>YETERSİZ</span>";
+        const statusASD = Pp_omega >= Pa ? "<span class='ok'>YETERLİ (OK)</span>" : "<span class='warn'>YETERSİZ</span>";
+        
+        html += `<p><strong>3. Seçilen Plaka (${plB} x ${plN}):</strong><br>`;
+        html += `Sağlanan Alan ($A_{prov}$): ${d_Aprov} ${uA}<br>`;
+        html += `Geometrik Kontrol ($A_{prov} > A_{col}$): ${(A_prov > i_d*i_bf) ? "OK" : "<span class='warn'>HATA: Kolondan küçük!</span>"}<br>`;
+        html += `LRFD Kapasite $\\phi_c P_p$: ${d_phiPp} ${uF} -> ${statusLRFD}<br>`;
+        html += `ASD Kapasite $P_p / \\Omega_c$: ${d_PpOm} ${uF} -> ${statusASD}</p>`;
+
+        // 4. Kalınlık
+        html += `<p><strong>4. Gerekli Kalınlık ($t_{min}$):</strong><br>`;
+        html += `Konsol mesafesi $\\ell = \\max(m, n, \\lambda n') = ${d_l} ${uL}$<br>`;
+        html += `$$ t_{LRFD} = \\ell \\sqrt{\\frac{2P_u}{0.9 F_y B N}} = \\mathbf{${d_treq_LRFD} \\text{ ${uL}}} $$`;
+        html += `$$ t_{ASD} = \\ell \\sqrt{\\frac{2P_a}{F_y B N / 1.67}} = \\mathbf{${d_treq_ASD} \\text{ ${uL}}} $$`;
+
+        document.getElementById('report').innerHTML = html;
+        if (window.MathJax) MathJax.typesetPromise();
+        
+        // Çizimi de güncelle
+        drawVisuals();
+    }
+
+    function autoSize() {
+        // Hesaplanan min alanı alıp kare kökünü textboxlara yazar
+        // Bu fonksiyon tekrar calculate() çağıracak
+        // Önce calculate'i manuel çalıştırıp A1'i bulalım
+        // ... (Kod tekrarı olmaması için basitçe alanları inputtan okuyup yapıyoruz ama 
+        // gerçek değer calculate içinde lokal. Basit bir yaklaşım:)
+        
+        // Calculate'i çağırdığımızda A1 değerlerine dışarıdan erişemiyoruz, o yüzden burada tekrar basitçe hesaplayalım.
+        // Veya calculate fonksiyonunu global değişken dolduracak şekilde güncelleyebiliriz ama 
+        // basitlik için:
+        
+        calculate(); // Rapor güncellensin
+        // Rapordaki metinden parse etmek yerine tekrar hesap:
+        // (Burada sadece LRFD baz alalım, daha güvenli)
+        
+        let i_D = parseFloat(document.getElementById('loadD').value);
+        let i_L = parseFloat(document.getElementById('loadL').value);
+        let i_fc = parseFloat(document.getElementById('fc').value);
+        let i_pB = parseFloat(document.getElementById('pier_B').value);
+        let i_pN = parseFloat(document.getElementById('pier_N').value);
+
+        if (currentUnit === 'metric') {
+             i_D/=4.448; i_L/=4.448; i_fc/=6.895; i_pB/=25.4; i_pN/=25.4;
+        }
+
+        const Pu = 1.2*i_D + 1.6*i_L;
+        const A2 = i_pB * i_pN;
+        // Basit A1 tahmini (Factor=2 varsayımıyla başla)
+        let A1_est = Pu / (0.65 * 1.7 * i_fc);
+        if (Math.sqrt(A2/A1_est) < 2) {
+             A1_est = Math.pow(Pu / (0.65 * 0.85 * i_fc * Math.sqrt(A2)), 2);
+        }
+
+        const side = Math.sqrt(A1_est);
+        const finalSide = Math.ceil(side * 10) / 10; // Yukarı yuvarla
+
+        let dispVal = finalSide;
+        if (currentUnit === 'metric') dispVal = (finalSide * 25.4).toFixed(0);
+        
+        document.getElementById('plate_B').value = dispVal;
+        document.getElementById('plate_N').value = dispVal;
+        calculate();
+    }
+
+    // --- Resim Penceresi ---
+    function openTheoryWindow() {
+        const w = window.open("", "TeoriPenceresiEx519", "width=700,height=900,scrollbars=yes,resizable=yes");
+        const content = `
+            <html>
+            <head>
+                <title>Örnek 5.19 Soru ve Çözüm</title>
+                <style>
+                    body { background-color: #ECE9D8; font-family: 'Tahoma', sans-serif; padding: 20px; text-align:center; }
+                    .img-container { margin-bottom: 20px; border: 1px solid #0055EA; padding: 5px; background: #fff; }
+                    img { max-width: 100%; height: auto; }
+                    h3 { color: #003c74; border-bottom: 2px solid #003c74; display:inline-block;}
+                </style>
+            </head>
+            <body>
+                <h3>Soru (Example 5.19)</h3>
+                <div class="img-container"><img src="image_d3946b.png" alt="Soru"></div>
+                <h3>LRFD Çözümü</h3>
+                <div class="img-container"><img src="image_d3948e.png" alt="LRFD"></div>
+                <h3>ASD Çözümü</h3>
+                <div class="img-container"><img src="image_d394af.png" alt="ASD"></div>
+                <button onclick="window.close()">Kapat</button>
+            </body>
+            </html>
+        `;
+        w.document.write(content);
+    }
+
+</script>
+
+</body>
+</html>

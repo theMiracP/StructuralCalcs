@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segui 6Ed. - Çelik Kesit Analizi Ex 5.1(XP Style)</title>
+    
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+
+    <style>
+        /* -----------------------------------------------------------
+           Windows XP (Luna) Teması
+        ----------------------------------------------------------- */
+        body {
+            background-color: #3A6EA5;
+            font-family: 'Tahoma', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            min-height: 100vh;
+            padding-top: 20px;
+            padding-bottom: 20px;
+        }
+
+        .kutu {
+            width: 800px;
+            background-color: #ECE9D8;
+            border: 3px solid #0055EA;
+            border-radius: 8px 8px 0 0;
+            box-shadow: 5px 5px 15px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .baslik {
+            background: linear-gradient(to bottom, #0058EE 0%, #3593FF 4%, #288EFF 18%, #127dff 44%, #0369fc 100%);
+            height: 30px;
+            padding: 5px 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px #000;
+            font-size: 14px;
+            border-radius: 5px 5px 0 0;
+        }
+
+        .baslik span::before { content: "📐 "; }
+
+        .kapat {
+            background: linear-gradient(to bottom, #ff5c4a, #d42814);
+            border: 1px solid #fff;
+            color: white;
+            width: 22px;
+            height: 22px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: sans-serif;
+            line-height: 18px;
+            text-align: center;
+        }
+        .kapat:hover { background: #ff2a14; }
+
+        .icerik {
+            padding: 15px;
+            font-size: 12px;
+            color: #000;
+        }
+
+        /* Düzen */
+        .toolbar {
+            background: #f0f0f0;
+            border-bottom: 1px solid #999;
+            padding: 5px 15px;
+            margin: -15px -15px 15px -15px; /* İçerik padding'ini aşmak için */
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toolbar a {
+            text-decoration: none;
+            color: #000;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            padding: 3px 5px;
+            border: 1px solid transparent;
+        }
+        .toolbar a:hover {
+            border: 1px solid #999;
+            background: #e1e1e1;
+            border-radius: 3px;
+        }
+
+        .panel-container {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .inputs-area {
+            width: 250px;
+            background: #fff;
+            border: 1px solid #7F9DB9;
+            padding: 10px;
+        }
+
+        .visual-area {
+            flex: 1;
+            background: #333;
+            border: 2px solid #7F9DB9;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            position: relative;
+            min-height: 220px;
+        }
+
+        input[type=number], select {
+            width: 95%;
+            padding: 3px;
+            margin-bottom: 5px;
+            border: 1px solid #7F9DB9;
+            font-family: 'Tahoma';
+        }
+
+        label {
+            display: block;
+            margin-top: 5px;
+            margin-bottom: 2px;
+            font-weight: bold;
+            font-size: 11px;
+        }
+
+        .section-title {
+            color: #003c74;
+            border-bottom: 1px solid #003c74;
+            margin-bottom: 5px;
+            padding-bottom: 2px;
+            font-weight: bold;
+        }
+
+        .xp-buton {
+            background: #f0f0f0;
+            border: 1px solid #003c74;
+            padding: 5px 15px;
+            cursor: pointer;
+            border-radius: 3px;
+            font-family: 'Tahoma';
+            font-weight: bold;
+            margin-top: 10px;
+            width: 100%;
+        }
+        .xp-buton:hover { box-shadow: inset 0 0 3px #ffd700; }
+
+        #report {
+            margin-top: 15px;
+            background: #fff;
+            border: 1px inset #fff;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+            font-family: 'Times New Roman', serif;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .res-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            font-size: 12px;
+            font-family: 'Tahoma';
+        }
+        .res-table th, .res-table td {
+            border: 1px solid #999;
+            padding: 4px;
+            text-align: center;
+        }
+        .res-table th { background: #eee; }
+    </style>
+</head>
+<body>
+
+<div class="kutu">
+    <div class="baslik">
+        <span>Segui Ex. 5.1 & 5.2 - Çelik Kesit Analizi</span>
+        <button class="kapat" onclick="window.close()">X</button>
+    </div>
+
+    <div class="icerik">
+        <div class="toolbar">
+            <img src="https://img.icons8.com/color/48/open-book.png" width="16" height="16" alt="Book">
+            <a href="#" onclick="openTheoryWindow()"><strong>Kitap Görsellerini Aç (Soru & Çözüm)</strong></a>
+        </div>
+
+        <div class="panel-container">
+            <div class="inputs-area">
+                <div class="section-title">Ayarlar</div>
+                <label>Birim Sistemi:</label>
+                <select id="unitSystem" onchange="toggleUnits()">
+                    <option value="imperial">Imperial (in, ksi)</option>
+                    <option value="metric">Metrik (mm, MPa)</option>
+                </select>
+
+                <div class="section-title" style="margin-top:10px;">Geometri <span id="dimUnit">(in)</span></div>
+                <label>Başlık Genişliği (bf):</label>
+                <input type="number" id="bf" value="8" step="0.1" oninput="drawVisuals()">
+                
+                <label>Başlık Kalınlığı (tf):</label>
+                <input type="number" id="tf" value="1" step="0.1" oninput="drawVisuals()">
+                
+                <label>Gövde Yüksekliği (dw):</label>
+                <input type="number" id="dw" value="12" step="0.1" oninput="drawVisuals()">
+                
+                <label>Gövde Kalınlığı (tw):</label>
+                <input type="number" id="tw" value="0.5" step="0.05" oninput="drawVisuals()">
+
+                <div class="section-title" style="margin-top:10px;">Malzeme</div>
+                <label>Akma Dayanımı Fy <span id="strUnit">(ksi)</span>:</label>
+                <input type="number" id="Fy" value="50" step="1">
+
+                <button class="xp-buton" onclick="calculate()">HESAPLA</button>
+            </div>
+
+            <div class="visual-area" id="canvas-container">
+                <div style="text-align:center;">
+                    <div style="color:#aaa; font-size:10px; margin-bottom:5px;">KESİT (Cross-Section)</div>
+                    <svg id="profileSvg" width="180" height="200" viewBox="0 0 200 200"></svg>
+                </div>
+                
+                <div style="text-align:center; border-left: 1px dashed #777; padding-left:10px;">
+                    <div style="color:#aaa; font-size:10px; margin-bottom:5px;">PLASTİK GERİLME (Stress)</div>
+                    <svg id="stressSvg" width="180" height="200" viewBox="0 0 200 200"></svg>
+                </div>
+            </div>
+        </div>
+
+        <div id="report">
+            <p style="color:#666; font-style:italic;">Sonuçları görmek için "Hesapla" butonuna basınız. Formüller MathJax ile render edilecektir.</p>
+        </div>
+        
+        <div style="margin-top:5px; font-size:10px; color:#666; text-align:right;">
+            Kaynak: Segui, W. T., "Steel Design", 6th Edition [Example 5.1 & 5.2]
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- 1. Resim Açma Fonksiyonu ---
+    function openTheoryWindow() {
+        // Yeni bir pencere aç
+        const w = window.open("", "TeoriPenceresi", "width=700,height=900,scrollbars=yes,resizable=yes");
+        
+        // Pencere içeriğini yaz (Resim dosyaları proje klasöründe olmalı)
+        const content = `
+            <html>
+            <head>
+                <title>Örnek Soru ve Çözüm - Segui Ex 5.1 & 5.2</title>
+                <style>
+                    body { background-color: #ECE9D8; font-family: 'Tahoma', sans-serif; padding: 20px; text-align:center; }
+                    .img-container { margin-bottom: 20px; border: 1px solid #0055EA; padding: 5px; background: #fff; box-shadow: 3px 3px 5px rgba(0,0,0,0.2); }
+                    img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+                    h3 { color: #003c74; border-bottom: 2px solid #003c74; display:inline-block; margin-bottom:10px;}
+                    .note { color: #d42814; font-size: 12px; margin-bottom: 10px; font-weight:bold;}
+                </style>
+            </head>
+            <body>
+                <h3>Example 5.1: Elastik Analiz</h3>
+                <div class="img-container">
+                    <img src="image_d2fe9d.png" alt="Example 5.1 Image - Check file path if missing">
+                </div>
+                
+                <h3>Example 5.2: Plastik Analiz</h3>
+                <div class="img-container">
+                    <img src="image_d31c87.png" alt="Example 5.2 Image - Check file path if missing">
+                </div>
+                
+                <div class="note">* Resimler görünmüyorsa 'image_d2fe9d.png' ve 'image_d31c87.png' dosyalarının bu HTML dosyasıyla aynı klasörde olduğundan emin olun.</div>
+                
+                <button onclick="window.close()" style="padding:5px 15px; cursor:pointer;">Pencereyi Kapat</button>
+            </body>
+            </html>
+        `;
+        
+        w.document.write(content);
+        w.document.close(); // Yüklemeyi bitir
+    }
+
+
+    // --- 2. Hesaplama ve Görselleştirme Mantığı ---
+    let currentUnit = 'imperial';
+    
+    window.onload = function() {
+        drawVisuals();
+    };
+
+    function toggleUnits() {
+        const select = document.getElementById('unitSystem');
+        const oldUnit = currentUnit;
+        currentUnit = select.value;
+
+        document.getElementById('dimUnit').innerText = (currentUnit === 'imperial') ? "(in)" : "(mm)";
+        document.getElementById('strUnit').innerText = (currentUnit === 'imperial') ? "(ksi)" : "(MPa)";
+
+        const ids = ['bf', 'tf', 'dw', 'tw'];
+        const fyInput = document.getElementById('Fy');
+
+        if (oldUnit === 'imperial' && currentUnit === 'metric') {
+            ids.forEach(id => {
+                let val = parseFloat(document.getElementById(id).value);
+                document.getElementById(id).value = (val * 25.4).toFixed(1);
+            });
+            let fy = parseFloat(fyInput.value);
+            fyInput.value = (fy * 6.89476).toFixed(0);
+
+        } else if (oldUnit === 'metric' && currentUnit === 'imperial') {
+            ids.forEach(id => {
+                let val = parseFloat(document.getElementById(id).value);
+                document.getElementById(id).value = (val / 25.4).toFixed(2);
+            });
+            let fy = parseFloat(fyInput.value);
+            fyInput.value = (fy / 6.89476).toFixed(0);
+        }
+        drawVisuals();
+    }
+
+    function drawVisuals() {
+        let bf = parseFloat(document.getElementById('bf').value) || 0;
+        let tf = parseFloat(document.getElementById('tf').value) || 0;
+        let dw = parseFloat(document.getElementById('dw').value) || 0;
+        let tw = parseFloat(document.getElementById('tw').value) || 0;
+
+        if (currentUnit === 'metric') {
+            bf /= 25.4; tf /= 25.4; dw /= 25.4; tw /= 25.4;
+        }
+
+        const totalH = dw + 2*tf;
+        const totalW = bf;
+        const scale = 140 / Math.max(totalH, totalW); 
+
+        const cx = 100;
+        const cy = 100;
+
+        const s_bf = bf * scale;
+        const s_tf = tf * scale;
+        const s_dw = dw * scale;
+        const s_tw = tw * scale;
+        
+        const topY = cy - (s_dw/2 + s_tf);
+        const botY = cy + (s_dw/2);
+
+        let d = `M ${cx - s_bf/2} ${topY} H ${cx + s_bf/2} V ${topY + s_tf} H ${cx + s_tw/2} `;
+        d += `V ${botY} H ${cx + s_bf/2} V ${botY + s_tf} H ${cx - s_bf/2} V ${botY} H ${cx - s_tw/2} `;
+        d += `V ${topY + s_tf} H ${cx - s_bf/2} Z`;
+
+        const svgProfile = document.getElementById('profileSvg');
+        svgProfile.innerHTML = `
+            <path d="${d}" fill="#808080" stroke="#FFF" stroke-width="2"/>
+            <line x1="${cx - s_bf/2}" y1="${topY - 10}" x2="${cx + s_bf/2}" y2="${topY - 10}" stroke="yellow" />
+            <text x="${cx}" y="${topY - 15}" text-anchor="middle" fill="yellow" font-size="10">${bf.toFixed(1)}</text>
+            <line x1="${cx + s_bf/2 + 15}" y1="${topY}" x2="${cx + s_bf/2 + 15}" y2="${botY + s_tf}" stroke="yellow" />
+            <text x="${cx + s_bf/2 + 20}" y="${cy}" fill="yellow" dominant-baseline="middle" font-size="10">${(dw + 2*tf).toFixed(1)}</text>
+        `;
+
+        const svgStress = document.getElementById('stressSvg');
+        const blockW = 40; 
+        
+        let stressHtml = `<line x1="50" y1="${topY}" x2="50" y2="${botY + s_tf}" stroke="#777" stroke-dasharray="4"/>`; 
+        let stressHtmlAxis = `<line x1="20" y1="${cy}" x2="180" y2="${cy}" stroke="#FFF" stroke-dasharray="5,2"/>`;
+
+        stressHtml += `<rect x="${50}" y="${topY}" width="${blockW}" height="${(dw/2 + tf)*scale}" fill="rgba(255,100,100,0.5)" stroke="red"/>`;
+        stressHtml += `<line x1="${50+blockW}" y1="${topY + ((dw/2+tf)*scale)/2}" x2="${30}" y2="${topY + ((dw/2+tf)*scale)/2}" stroke="white" stroke-width="2" marker-end="url(#arrowhead)"/>`; 
+        
+        stressHtml += `<rect x="${50 - blockW}" y="${cy}" width="${blockW}" height="${(dw/2 + tf)*scale}" fill="rgba(100,100,255,0.5)" stroke="blue"/>`;
+        stressHtml += `<line x1="${50-blockW}" y1="${cy + ((dw/2+tf)*scale)/2}" x2="${70}" y2="${cy + ((dw/2+tf)*scale)/2}" stroke="white" stroke-width="2" marker-end="url(#arrowhead)"/>`; 
+
+        stressHtml += `<text x="${50+blockW+5}" y="${topY}" fill="white" font-size="10">Fy</text>`;
+        stressHtml += `<text x="${60}" y="${cy-5}" fill="white" font-size="10">P.N.A</text>`;
+
+        stressHtml = `<defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                <polygon points="0 0, 10 3.5, 0 7" fill="white" />
+            </marker>
+        </defs>` + stressHtml + stressHtmlAxis;
+
+        svgStress.innerHTML = stressHtml;
+    }
+
+    function calculate() {
+        let val_bf = parseFloat(document.getElementById('bf').value);
+        let val_tf = parseFloat(document.getElementById('tf').value);
+        let val_dw = parseFloat(document.getElementById('dw').value);
+        let val_tw = parseFloat(document.getElementById('tw').value);
+        let val_Fy = parseFloat(document.getElementById('Fy').value);
+
+        let bf, tf, dw, tw, Fy;
+
+        if (currentUnit === 'metric') {
+            bf = val_bf / 25.4; tf = val_tf / 25.4; dw = val_dw / 25.4; tw = val_tw / 25.4; Fy = val_Fy / 6.89476;
+        } else {
+            bf = val_bf; tf = val_tf; dw = val_dw; tw = val_tw; Fy = val_Fy;
+        }
+
+        const h_total = dw + 2 * tf;
+        const I_web = (tw * Math.pow(dw, 3)) / 12;
+        const A_f = bf * tf;
+        const d_f = (dw / 2) + (tf / 2);
+        const I_flange_local = (bf * Math.pow(tf, 3)) / 12;
+        const I_flanges = 2 * (I_flange_local + (A_f * Math.pow(d_f, 2)));
+        const Ix = I_web + I_flanges;
+        const c = h_total / 2;
+        const Sx = Ix / c;
+        const My = Fy * Sx; 
+
+        const y_bar_flange = (dw/2) + (tf/2);
+        const y_bar_web_half = (dw/2) / 2; 
+        const Q_flange = A_f * y_bar_flange;
+        const Q_web = (tw * dw/2) * y_bar_web_half;
+        const Zx = 2 * (Q_flange + Q_web);
+        const Mp = Fy * Zx; 
+
+        let d_Ix, d_Sx, d_Zx, d_My, d_Mp, unit_I, unit_S, unit_M;
+        
+        if (currentUnit === 'metric') {
+            unit_I = "mm^4"; unit_S = "mm^3"; unit_M = "kN\\cdot m";
+            d_Ix = Ix * Math.pow(25.4, 4);
+            d_Sx = Sx * Math.pow(25.4, 3);
+            d_Zx = Zx * Math.pow(25.4, 3);
+            d_My = (My / 12) * 1.355818; 
+            d_Mp = (Mp / 12) * 1.355818;
+            d_Ix = d_Ix.toExponential(2); d_Sx = d_Sx.toExponential(2); d_Zx = d_Zx.toExponential(2);
+            d_My = d_My.toFixed(2); d_Mp = d_Mp.toFixed(2);
+        } else {
+            unit_I = "in^4"; unit_S = "in^3"; unit_M = "ft\\cdot kips";
+            d_Ix = Ix.toFixed(1); d_Sx = Sx.toFixed(1); d_Zx = Zx.toFixed(1);
+            d_My = (My / 12).toFixed(1); d_Mp = (Mp / 12).toFixed(1);
+        }
+
+        let html = `<h3>HESAPLAMA RAPORU</h3><hr>`;
+        html += `<h4>A. Elastik Analiz (Example 5.1)</h4>`;
+        html += `$$ I_x = \\sum (I_o + Ad^2) = ${Ix.toFixed(1)} \\text{ in}^4 $$`;
+        if(currentUnit === 'metric') html += `<div style='text-align:center; color:#0055EA'>(${d_Ix} mm⁴)</div>`;
+        html += `$$ S_x = \\frac{I_x}{c} = \\frac{${Ix.toFixed(1)}}{${c.toFixed(2)}} = \\mathbf{${d_Sx}} \\text{ ${unit_S}} $$`;
+        html += `$$ M_y = F_y S_x = \\mathbf{${d_My}} \\text{ ${unit_M}} $$`;
+        html += `<hr><h4>B. Plastik Analiz (Example 5.2)</h4>`;
+        html += `$$ Z_x = 2 \\times \\sum A_i y_i = \\mathbf{${d_Zx}} \\text{ ${unit_S}} $$`;
+        html += `$$ M_p = F_y Z_x = \\mathbf{${d_Mp}} \\text{ ${unit_M}} $$`;
+        html += `<p><strong>Şekil Faktörü:</strong> $$ \\frac{Z}{S} = ${(Zx/Sx).toFixed(2)} $$</p>`;
+
+        const reportDiv = document.getElementById('report');
+        reportDiv.innerHTML = html;
+        if (window.MathJax) MathJax.typesetPromise();
+    }
+</script>
+
+</body>
+</html>
