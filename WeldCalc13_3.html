@@ -1,65 +1,379 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>Hesap X</title>
-  <!-- Ortak XP teması CSS dosyası -->
-  <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<title>Kaynaklı Birleşim Hesabı (Örnek 13.3) - XP</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* Sayfa Düzeni */
+  .main-container {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    font-family: 'Tahoma', sans-serif;
+  }
+  
+  .left-panel {
+    width: 320px;
+    background: #ece9d8;
+    border: 1px solid #7f9db9;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  /* Grup Kutuları */
+  .group-box {
+    border: 1px solid #d0d0bf;
+    background: #fff;
+    padding: 6px;
+    border-radius: 3px;
+  }
+  .group-title {
+    font-size: 11px;
+    font-weight: bold;
+    color: #003399;
+    margin-bottom: 5px;
+    border-bottom: 1px dotted #ccc;
+    padding-bottom: 2px;
+  }
+  
+  /* Form Elemanları */
+  .form-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    font-size: 11px;
+  }
+  .form-row label { flex: 1; color:#333; }
+  .form-row input, .form-row select {
+    width: 70px;
+    font-size: 11px;
+    padding: 2px;
+    border: 1px solid #7f9db9;
+    text-align: right;
+  }
+  .unit { width: 25px; margin-left: 3px; color: #666; font-size: 10px; }
+
+  /* Sonuç Alanları */
+  .calc-steps {
+    background-color: #ffffe1; 
+    border: 1px inset #999;
+    padding: 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #000;
+    flex: 1;
+    overflow-y: auto;
+    max-height: 400px;
+    white-space: pre-wrap;
+  }
+  
+  .calc-header {
+    font-weight: bold;
+    border-bottom: 1px dashed #666;
+    margin-bottom: 5px;
+    color: #000080;
+    display: block;
+    margin-top: 10px;
+  }
+  
+  .pass { color: green; font-weight: bold; }
+  .fail { color: red; font-weight: bold; }
+
+  /* Canvas */
+  .canvas-container {
+    background: #fff;
+    border: 1px solid #7f9db9;
+    padding: 5px;
+    text-align: center;
+  }
+  canvas { background: #fff; }
+  
+  .legend {
+      font-size: 10px;
+      margin-top: 2px;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+  }
+  .legend-item { display: flex; align-items: center; gap: 4px; }
+  .box { width: 10px; height: 10px; border: 1px solid #000; }
+</style>
 </head>
 <body>
 
-  <!-- ===================== -->
-  <!-- PENCERE KUTUSU XP      -->
-  <!-- ===================== -->
-  <div class="kutu">
-    
-    <!-- Başlık çubuğu -->
-    <h3>Hesap X</h3>
-    
-    <!-- ===================== -->
-    <!-- INPUT ALANLARI         -->
-    <!-- ===================== -->
-    <label for="deger1">Değer 1:</label>
-    <input type="number" id="deger1" placeholder="Örn: 5">
-
-    <label for="deger2">Değer 2:</label>
-    <input type="number" id="deger2" placeholder="Örn: 4">
-
-    <!-- ===================== -->
-    <!-- HESAPLA BUTONU         -->
-    <!-- ===================== -->
-    <button onclick="hesapla()">Hesapla</button>
-
-    <!-- ===================== -->
-    <!-- SONUÇ KUTUSU           -->
-    <!-- ===================== -->
-    <div class="sonuc" id="sonuc"></div>
-    
+<div class="kutu" style="width: 850px;">
+  <div class="baslik">
+    <span>Kombine Kaynaklı Birleşim (Örnek 13.3)</span>
+    <button class="kapat" onclick="window.location.href='index.html'">X</button>
   </div>
 
-  <!-- ===================== -->
-  <!-- JAVASCRIPT KODU        -->
-  <!-- ===================== -->
-  <script>
-    // hesapla() fonksiyonu örnek
-    // Bu fonksiyon inputlardan değerleri alır, hesaplama yapar ve sonucu gösterir
-    function hesapla() {
-      const deger1 = parseFloat(document.getElementById("deger1").value);
-      const deger2 = parseFloat(document.getElementById("deger2").value);
+  <div class="main-container">
+    
+    <div class="left-panel">
+        
+        <div class="group-box">
+            <div class="group-title">1. Yükler</div>
+            <div class="form-row"><label>Ölü Yük (PG):</label><input type="number" id="PG" value="130"><span class="unit">kN</span></div>
+            <div class="form-row"><label>Hareketli (PQ):</label><input type="number" id="PQ" value="300"><span class="unit">kN</span></div>
+            <div class="form-row"><label>Yöntem:</label>
+                <select id="method" style="width:75px;">
+                    <option value="YDKT">YDKT</option>
+                    <option value="GKT">GKT</option>
+                </select>
+            </div>
+        </div>
 
-      // Eğer input boş veya geçersizse uyarı ver
-      if (isNaN(deger1) || isNaN(deger2)) {
-        document.getElementById("sonuc").innerText = "Lütfen değer giriniz.";
-        return;
-      }
+        <div class="group-box">
+            <div class="group-title">2. Geometri (UPE 240)</div>
+            <div class="form-row"><label>Profil Genişliği (b):</label><input type="number" id="b_prof" value="240"><span class="unit">mm</span></div>
+            <div class="form-row"><label>Profil Et Kal. (tw):</label><input type="number" id="t_prof" value="7.0"><span class="unit">mm</span></div>
+            <div class="form-row"><label>Kaynak Etkin (a):</label><input type="number" id="a_weld" value="3.5"><span class="unit">mm</span></div>
+        </div>
 
-      // ÖRNEK HESAPLAMA: toplama
-      const sonuc = deger1 + deger2; 
+        <div class="group-box">
+            <div class="group-title">3. Kaynak Boyutları</div>
+            <div class="form-row"><label>Boyuna Kaynak (L1):</label><input type="number" id="L1" value="236.5"><span class="unit">mm</span></div>
+            <div style="font-size:9px; color:gray; text-align:right; margin-bottom:5px;">(Her iki kenarda toplam değil, tekil boy)</div>
+            <div class="form-row"><label>Enine Kaynak (L2):</label><input type="number" id="L2" value="240"><span class="unit">mm</span></div>
+            <div class="form-row"><label>Elektrot (FE):</label><input type="number" id="FE" value="550"><span class="unit">MPa</span></div>
+        </div>
 
-      // Sonucu ekranda göster
-      document.getElementById("sonuc").innerText = "Sonuç = " + sonuc;
+        <button class="xp-buton" onclick="hesapla()" style="width:100%; height:30px; font-weight:bold;">HESAPLA</button>
+    </div>
+
+    <div class="right-panel">
+        
+        <div class="canvas-container">
+            <canvas id="weldCanvas" width="480" height="200"></canvas>
+            <div class="legend">
+                <div class="legend-item"><div class="box" style="background:#ccc;"></div>U-Profil</div>
+                <div class="legend-item"><div class="box" style="background:blue;"></div>Boyuna Kaynak (θ=0°)</div>
+                <div class="legend-item"><div class="box" style="background:red;"></div>Enine Kaynak (θ=90°)</div>
+            </div>
+        </div>
+
+        <div id="results" class="calc-steps">
+            Sonuçları görmek için 'HESAPLA' butonuna basınız.
+        </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+function log(msg, clear=false) {
+    const el = document.getElementById("results");
+    if(clear) el.innerHTML = "";
+    el.innerHTML += msg + "\n";
+}
+
+function drawWeld(b, L_long, L_trans) {
+    const c = document.getElementById("weldCanvas");
+    const ctx = c.getContext("2d");
+    ctx.clearRect(0, 0, c.width, c.height);
+
+    // Ölçekleme
+    const margin = 40;
+    // Canvasın genişliğine sığdırmak için scale hesabı
+    // Profil boyunu L_long + 50 olarak varsayalım
+    const totalW = L_long + 100; 
+    const scale = (c.width - 2 * margin) / totalW;
+    
+    const startX = margin;
+    const startY = (c.height - (b * scale)) / 2;
+    
+    // 1. U-Profil Çizimi (Üstten Görünüş - Plaka gibi)
+    // Aslında U profilin sırtına kaynak yapılıyor varsayımıyla dikdörtgen çiziyoruz
+    const plateW = L_long + 50; 
+    const plateH = b * scale;
+    
+    ctx.fillStyle = "#e0e0e0";
+    ctx.strokeStyle = "#666";
+    ctx.lineWidth = 1;
+    ctx.fillRect(startX, startY, plateW * scale, plateH);
+    ctx.strokeRect(startX, startY, plateW * scale, plateH);
+    
+    // Birleşim Levhası (Gusset Plate) - Altında kalan kısım
+    ctx.beginPath();
+    ctx.moveTo(startX + (plateW * scale), startY - 10);
+    ctx.lineTo(startX + (plateW * scale) + 40, startY - 10);
+    ctx.lineTo(startX + (plateW * scale) + 40, startY + plateH + 10);
+    ctx.lineTo(startX + (plateW * scale), startY + plateH + 10);
+    ctx.strokeStyle = "#999";
+    ctx.setLineDash([5, 3]);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    
+    // 2. KAYNAKLAR
+    const weldThick = 4; // Görsel kalınlık
+    
+    // Boyuna Kaynaklar (Mavi) - Üst ve Alt Kenar
+    // Örnek 13.3'te "Kuvvete paralel köşe kaynaklar"
+    if (L_long > 0) {
+        ctx.fillStyle = "blue";
+        // Üst kenar
+        // Bitiş noktasından geriye doğru L_long kadar
+        const wEndX = startX + plateW * scale;
+        const wStartX = wEndX - (L_long * scale);
+        
+        ctx.fillRect(wStartX, startY - weldThick, L_long * scale, weldThick);
+        // Alt kenar
+        ctx.fillRect(wStartX, startY + plateH, L_long * scale, weldThick);
+        
+        // Etiket
+        ctx.fillStyle = "blue";
+        ctx.font = "10px Tahoma";
+        ctx.fillText(`L1 = ${L_long} mm`, wStartX + (L_long*scale)/2 - 20, startY - 8);
     }
-  </script>
+    
+    // Enine Kaynak (Kırmızı) - Uç Kenar
+    if (L_trans > 0) {
+        ctx.fillStyle = "red";
+        const wX = startX + plateW * scale;
+        // Profilin ucunda dikine
+        ctx.fillRect(wX, startY, weldThick, plateH);
+        
+        // Etiket
+        ctx.fillStyle = "red";
+        ctx.fillText(`L2 = ${L_trans}`, wX + 5, startY + plateH/2);
+    }
+    
+    // 3. KUVVET OKU
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    // Ok gövdesi
+    ctx.moveTo(startX + 20, startY + plateH/2);
+    ctx.lineTo(startX - 30, startY + plateH/2);
+    ctx.stroke();
+    // Ok ucu
+    ctx.beginPath();
+    ctx.moveTo(startX - 30, startY + plateH/2);
+    ctx.lineTo(startX - 20, startY + plateH/2 - 5);
+    ctx.lineTo(startX - 20, startY + plateH/2 + 5);
+    ctx.fillStyle = "black";
+    ctx.fill();
+    
+    ctx.font = "bold 12px Tahoma";
+    ctx.fillText("P", startX - 25, startY + plateH/2 - 8);
+}
+
+function hesapla() {
+    // Girdiler
+    const PG = parseFloat(document.getElementById("PG").value);
+    const PQ = parseFloat(document.getElementById("PQ").value);
+    const method = document.getElementById("method").value;
+    
+    const b_prof = parseFloat(document.getElementById("b_prof").value);
+    const a_weld = parseFloat(document.getElementById("a_weld").value);
+    const L1 = parseFloat(document.getElementById("L1").value); // Boyuna
+    const L2 = parseFloat(document.getElementById("L2").value); // Enine
+    const FE = parseFloat(document.getElementById("FE").value);
+    
+    log("", true);
+    
+    // --- ADIM 1: YÜK HESABI ---
+    log("<span class='calc-header'>I. GEREKLİ DAYANIM (P_u / P_a)</span>");
+    let P_req, loadStr;
+    if (method === "YDKT") {
+        P_req = 1.2 * PG + 1.6 * PQ;
+        loadStr = `Pu = 1.2(${PG}) + 1.6(${PQ}) = <b>${P_req.toFixed(2)} kN</b>`;
+    } else {
+        P_req = PG + PQ;
+        loadStr = `Pa = ${PG} + ${PQ} = <b>${P_req.toFixed(2)} kN</b>`;
+    }
+    log(loadStr);
+    
+    // --- ADIM 2: BOYUNA KAYNAK KAPASİTESİ (θ = 0°) ---
+    log("\n<span class='calc-header'>II. BOYUNA KAYNAK KAPASİTESİ (Rnwl)</span>");
+    // Nominal Gerilme Fnw = 0.60 * FE
+    const Fnw_long = 0.60 * FE;
+    // Etkin Alan Awe = 2 * L1 * a (Çünkü alt ve üstte var)
+    const Aw_long = 2 * L1 * a_weld;
+    const Rnwl = Fnw_long * Aw_long / 1000; // kN
+    
+    log(`Nominal Gerilme (Fnw) = 0.60 * ${FE} = ${Fnw_long.toFixed(1)} MPa`);
+    log(`Etkin Alan (Aw) = 2 * ${L1} * ${a_weld} = ${Aw_long.toFixed(0)} mm²`);
+    log(`Rnwl = Fnw * Aw = ${Fnw_long.toFixed(1)} * ${Aw_long} / 1000 = <b>${Rnwl.toFixed(2)} kN</b>`);
+    
+    // --- ADIM 3: ENİNE KAYNAK KAPASİTESİ (θ = 90°) ---
+    log("\n<span class='calc-header'>III. ENİNE KAYNAK KAPASİTESİ (Rnwt)</span>");
+    // Nominal Gerilme Fnw = 0.60 * FE * (1 + 0.5 * sin(90)^1.5)
+    // sin(90) = 1 -> (1 + 0.5) = 1.5 kat artış
+    const factor = 1.0 + 0.5 * Math.pow(Math.sin(Math.PI/2), 1.5); // 1.5
+    const Fnw_trans = 0.60 * FE * factor;
+    // Etkin Alan Awe = L2 * a
+    const Aw_trans = L2 * a_weld;
+    const Rnwt = Fnw_trans * Aw_trans / 1000; // kN
+    
+    log(`Açı Çarpanı = (1 + 0.5 * sin(90)^1.5) = ${factor.toFixed(2)}`);
+    log(`Nominal Gerilme = 0.60 * ${FE} * ${factor} = ${Fnw_trans.toFixed(1)} MPa`);
+    log(`Etkin Alan = ${L2} * ${a_weld} = ${Aw_trans.toFixed(0)} mm²`);
+    log(`Rnwt = ${Fnw_trans.toFixed(1)} * ${Aw_trans} / 1000 = <b>${Rnwt.toFixed(2)} kN</b>`);
+    
+    // --- ADIM 4: KOMBİNE DAYANIM (Rn) ---
+    log("\n<span class='calc-header'>IV. TOPLAM KARAKTERİSTİK DAYANIM (Rn)</span>");
+    log("Yönetmelik 13.2.4(b) uyarınca iki durum kontrol edilir:");
+    
+    // Durum 1: Basit Toplam
+    const Rn1 = Rnwl + Rnwt;
+    log(`1) Rnl + Rnt = ${Rnwl.toFixed(2)} + ${Rnwt.toFixed(2)} = ${Rn1.toFixed(2)} kN [Denk 13.5]`);
+    
+    // Durum 2: Etkileşimli (AISC Formülü)
+    // Rn = 0.85 * Rnwl + 1.5 * Rnwt
+    const Rn2 = 0.85 * Rnwl + 1.5 * Rnwt;
+    log(`2) 0.85*Rnl + 1.5*Rnt = 0.85*${Rnwl.toFixed(2)} + 1.5*${Rnwt.toFixed(2)} = <b>${Rn2.toFixed(2)} kN</b> [Denk 13.6]`);
+    
+    // En büyüğü alınır
+    const Rn = Math.max(Rn1, Rn2);
+    log(`\n>> Karakteristik Dayanım (Rn) = <b>${Rn.toFixed(2)} kN</b> (Büyük Olan)`);
+    
+    // --- ADIM 5: KONTROL ---
+    log("\n<span class='calc-header'>V. TASARIM KONTROLÜ</span>");
+    let P_capacity, resultClass, resultText;
+    
+    if (method === "YDKT") {
+        const phi = 0.75;
+        P_capacity = phi * Rn;
+        log(`Tasarım Dayanımı (ϕRn) = 0.75 * ${Rn.toFixed(2)} = <b>${P_capacity.toFixed(2)} kN</b>`);
+    } else {
+        const omega = 2.00;
+        P_capacity = Rn / omega;
+        log(`Güvenli Dayanım (Rn/Ω) = ${Rn.toFixed(2)} / 2.00 = <b>${P_capacity.toFixed(2)} kN</b>`);
+    }
+    
+    const ratio = P_req / P_capacity;
+    if (P_req <= P_capacity) {
+        resultClass = "pass";
+        resultText = "GÜVENLİ";
+    } else {
+        resultClass = "fail";
+        resultText = "YETERSİZ";
+    }
+    
+    log(`\nTalep / Kapasite = ${P_req.toFixed(2)} / ${P_capacity.toFixed(2)} = ${ratio.toFixed(2)}`);
+    log(`<span class='${resultClass}'>SONUÇ: ${resultText}</span>`);
+    
+    // Çizim Güncelle
+    drawWeld(b_prof, L1, L2);
+}
+
+// Sayfa yüklendiğinde çiz
+window.onload = function() {
+    hesapla();
+};
+</script>
 
 </body>
 </html>

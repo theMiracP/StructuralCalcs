@@ -1,74 +1,447 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <title>Hesap3</title>
-  <!-- Ortak XP CSS dosyası -->
-  <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<title>Sürtünme Etkili Birleşimler (Oval Delik) - XP</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  /* --- XP Stil Düzenlemeleri --- */
+  .main-container {
+    display: flex;
+    gap: 10px;
+    padding: 10px;
+    font-family: 'Tahoma', sans-serif;
+  }
+  
+  .left-panel {
+    width: 320px;
+    background: #ece9d8;
+    border: 1px solid #7f9db9;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .right-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .group-box {
+    border: 1px solid #d0d0bf;
+    background: #fff;
+    padding: 6px;
+    border-radius: 3px;
+    margin-bottom: 5px;
+  }
+  .group-title {
+    font-size: 11px;
+    font-weight: bold;
+    color: #003399;
+    margin-bottom: 5px;
+    border-bottom: 1px dotted #ccc;
+    padding-bottom: 2px;
+  }
+  
+  .form-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+    font-size: 11px;
+  }
+  .form-row label { flex: 1; color:#333; }
+  .form-row input, .form-row select {
+    width: 80px;
+    font-size: 11px;
+    padding: 2px;
+    border: 1px solid #7f9db9;
+    text-align: right;
+  }
+  .unit { width: 25px; margin-left: 3px; color: #666; font-size: 10px; }
+
+  /* Sonuç Kutusu */
+  .calc-steps {
+    background-color: #ffffe1; 
+    border: 1px inset #999;
+    padding: 10px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: #000;
+    flex: 1;
+    overflow-y: auto;
+    max-height: 400px;
+    white-space: pre-wrap;
+  }
+  
+  .calc-header {
+    font-weight: bold;
+    border-bottom: 1px dashed #666;
+    margin-bottom: 5px;
+    color: #000080;
+    display: block;
+    margin-top: 10px;
+  }
+  
+  .pass { color: green; font-weight: bold; }
+  .fail { color: red; font-weight: bold; }
+
+  /* Canvas */
+  .canvas-container {
+    background: #808080; 
+    border: 2px inset #fff;
+    padding: 10px;
+    text-align: center;
+  }
+  canvas { background: #fff; }
+
+  /* Tab Butonları */
+  .tab-header { display: flex; gap: 2px; margin-bottom: 5px; }
+  .tab-btn {
+      flex: 1;
+      padding: 5px;
+      border: 1px solid #7f9db9;
+      background: #e0e0e0;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: bold;
+      border-radius: 3px 3px 0 0;
+  }
+  .tab-btn.active {
+      background: #fff;
+      border-bottom: 1px solid #fff;
+      color: #e68b2c;
+  }
+</style>
 </head>
 <body>
 
-  <!-- Tüm hesap formu bu kutu içine gelecek -->
-  <div class="kutu">
-    <div class="muhendis-card">
-  <div class="header">
-    <h2>Basit Kiriş Momenti</h2>
-    <p>Yayılı Yük (q) altında</p>
+<div class="kutu" style="width: 850px;">
+  <div class="baslik">
+    <span>Sürtünme Etkili Birleşimler (Oval Delik) - Örnek 13.10 & 13.11</span>
+    <button class="kapat" onclick="window.location.href='index.html'">X</button>
   </div>
 
-  <div class="kiris-sema">
-    <div class="yuk-oklari">↓↓↓↓↓↓↓↓</div>
-    <div class="kiris-cubuk"></div>
-    <div class="mesnetler">
-      <span>▲</span>
-      <span>▲</span>
+  <div class="main-container">
+    
+    <div class="left-panel">
+        
+        <div class="tab-header">
+            <div class="tab-btn active" onclick="loadExample(13.10, this)">Örnek 13.10<br>(Kısa Oval)</div>
+            <div class="tab-btn" onclick="loadExample(13.11, this)">Örnek 13.11<br>(Uzun Oval)</div>
+        </div>
+
+        <div class="group-box">
+            <div class="group-title">1. Yükler</div>
+            <div class="form-row"><label>Ölü Yük (PG):</label><input type="number" id="PG" value="50"><span class="unit">kN</span></div>
+            <div class="form-row"><label>Hareketli (PQ):</label><input type="number" id="PQ" value="100"><span class="unit">kN</span></div>
+        </div>
+
+        <div class="group-box">
+            <div class="group-title">2. Geometri ve Malzeme</div>
+            <div class="form-row"><label>Plaka (b x t):</label>
+                <div style="display:flex; width:80px; gap:2px;">
+                    <input type="number" id="b_plate" value="200" style="width:35px;">
+                    <input type="number" id="t_plate" value="12" style="width:35px;">
+                </div>
+                <span class="unit">mm</span>
+            </div>
+            <div class="form-row"><label>Bulon Sayısı (n):</label><input type="number" id="n_bolt" value="5"><span class="unit">ad</span></div>
+        </div>
+
+        <div class="group-box">
+            <div class="group-title">3. Bulon ve Delik Özellikleri</div>
+            <div class="form-row"><label>Bulon Çapı (d):</label><input type="number" id="d_bolt" value="20"><span class="unit">mm</span></div>
+            <div class="form-row"><label>Önçekme (Tb):</label><input type="number" id="Tb" value="137"><span class="unit">kN</span></div>
+            <div class="form-row"><label>Yüzey Sınıfı (μ):</label>
+                <select id="mu_class">
+                    <option value="0.30">A (0.30)</option>
+                    <option value="0.40" selected>B (0.40)</option>
+                    <option value="0.30">C (0.30)</option>
+                </select>
+            </div>
+            
+            <hr style="margin:5px 0; border:0; border-top:1px dashed #ccc;">
+            
+            <div class="form-row"><label style="font-weight:bold; color:red;">Delik Tipi:</label>
+                <select id="hole_type" onchange="updateFactors()" style="background:#ffffcc;">
+                    <option value="STD">Standart (STD)</option>
+                    <option value="OVS">Büyük (OVS)</option>
+                    <option value="SSL" selected>Kısa Oval (SSL)</option>
+                    <option value="LSL">Uzun Oval (LSL)</option>
+                </select>
+            </div>
+            
+            <div class="form-row"><label>Delik Faktörü (D):</label><input type="number" id="factor_D" value="0.85" readonly style="background:#eee;"></div>
+            <div class="form-row"><label>YDKT (ϕ):</label><input type="number" id="phi" value="0.85" readonly style="background:#eee;"></div>
+            <div class="form-row"><label>GKT (Ω):</label><input type="number" id="omega" value="1.76" readonly style="background:#eee;"></div>
+        </div>
+
+        <button class="xp-buton" onclick="hesapla()" style="width:100%; height:30px; font-weight:bold;">HESAPLA</button>
     </div>
-  </div>
 
-  <div class="input-group">
-    <label>Yayılı Yük (q) <span class="birim">[kN/m]</span></label>
-    <input type="number" id="q" placeholder="Örn: 10">
-  </div>
+    <div class="right-panel">
+        
+        <div class="canvas-container">
+            <canvas id="slotCanvas" width="450" height="150"></canvas>
+        </div>
 
-  <div class="input-group">
-    <label>Kiriş Uzunluğu (L) <span class="birim">[m]</span></label>
-    <input type="number" id="l" placeholder="Örn: 5">
-  </div>
+        <div id="results" class="calc-steps">
+            Sonuçları görmek için 'HESAPLA' butonuna basınız.
+        </div>
+    </div>
 
-  <button onclick="hesapla()" id="hesapla-btn">HESAPLA</button>
-
-  <div class="sonuc-kutusu" id="sonuc-alani" style="display:none;">
-    <span class="etiket">Maksimum Moment ($M_{max}$)</span>
-    <span class="deger" id="sonuc">0</span>
-    <span class="birim-sonuc">kNm</span>
   </div>
 </div>
-  </div>
 
 <script>
-  function hesapla() {
-  // Değerleri al
-  var q = parseFloat(document.getElementById('q').value);
-  var l = parseFloat(document.getElementById('l').value);
-  
-  // Kontrol et: Boş mu?
-  if (isNaN(q) || isNaN(l)) {
-    alert("Lütfen q ve L değerlerini sayı olarak giriniz.");
-    return;
-  }
-  
-  // Formül: M = q * l^2 / 8
-  var moment = (q * Math.pow(l, 2)) / 8;
-  
-  // Sonucu yazdır
-  document.getElementById('sonuc').innerText = moment.toFixed(2); // 2 basamak
-  
-  // Sonuç kutusunu görünür yap
-  document.getElementById('sonuc-alani').style.display = 'block';
+// --- VERİ YÖNETİMİ ---
+
+function loadExample(ex, btn) {
+    // Tab Butonlarını Güncelle
+    var buttons = document.getElementsByClassName("tab-btn");
+    for(var i=0; i<buttons.length; i++) buttons[i].classList.remove("active");
+    btn.classList.add("active");
+
+    if (ex === 13.10) {
+        // Örnek 13.10 Verileri
+        document.getElementById("PG").value = 50;
+        document.getElementById("PQ").value = 100;
+        document.getElementById("hole_type").value = "SSL"; // Kısa Oval
+    } else {
+        // Örnek 13.11 Verileri
+        document.getElementById("PG").value = 40;
+        document.getElementById("PQ").value = 80;
+        document.getElementById("hole_type").value = "LSL"; // Uzun Oval
+    }
+    updateFactors();
+    hesapla();
 }
+
+function updateFactors() {
+    const type = document.getElementById("hole_type").value;
+    let D = 1.0;
+    let phi = 1.0;
+    let omega = 1.50;
+
+    switch(type) {
+        case "STD": // Standart
+            D = 1.0; phi = 1.00; omega = 1.50;
+            break;
+        case "OVS": // Büyük (Oversized)
+            D = 0.85; phi = 0.85; omega = 1.76;
+            break;
+        case "SSL": // Kısa Oval (Short Slotted)
+            D = 0.85; phi = 0.85; omega = 1.76; // Kayma yükü oval deliğe paralelse
+            // Not: Eğer dik ise D=1.0 olur, ama örnekte paralel varsayımı var.
+            break;
+        case "LSL": // Uzun Oval (Long Slotted)
+            D = 0.70; phi = 0.70; omega = 2.14;
+            break;
+    }
+    
+    document.getElementById("factor_D").value = D.toFixed(2);
+    document.getElementById("phi").value = phi.toFixed(2);
+    document.getElementById("omega").value = omega.toFixed(2);
+    
+    drawConnection();
+}
+
+function log(msg, clear=false) {
+    const el = document.getElementById("results");
+    if(clear) el.innerHTML = "";
+    el.innerHTML += msg + "\n";
+}
+
+function drawConnection() {
+    const c = document.getElementById("slotCanvas");
+    const ctx = c.getContext("2d");
+    ctx.clearRect(0, 0, c.width, c.height);
+
+    const type = document.getElementById("hole_type").value;
+    const b = parseFloat(document.getElementById("b_plate").value);
+    
+    // Ölçekleme
+    const scale = 0.5;
+    const startX = 20;
+    const startY = (c.height - b*scale)/2;
+    const plateW = 400;
+    const plateH = b * scale;
+
+    // Plaka
+    ctx.fillStyle = "#d0d0d0";
+    ctx.strokeStyle = "#555";
+    ctx.lineWidth = 2;
+    ctx.fillRect(startX, startY, plateW, plateH);
+    ctx.strokeRect(startX, startY, plateW, plateH);
+    
+    // Kırılma çizgisi
+    ctx.beginPath();
+    ctx.moveTo(startX, startY); ctx.lineTo(startX-10, startY+plateH/2); ctx.lineTo(startX, startY+plateH);
+    ctx.stroke();
+
+    // Bulonlar (Oval çizimi)
+    const n = parseInt(document.getElementById("n_bolt").value);
+    const boltD = parseFloat(document.getElementById("d_bolt").value);
+    const radius = (boltD * scale) / 2;
+    
+    let slotL = 0; // Ek uzunluk
+    if (type === "SSL") slotL = 6 * scale; // Kısa oval (yaklaşık)
+    if (type === "LSL") slotL = (boltD * 2.5) * scale; // Uzun oval (yaklaşık 2.5d)
+
+    // Yerleşim (Basit şematik)
+    // 2-1-2 düzeni (örnekteki gibi) veya basit sıra
+    // Örnek 13.10 görselinde 2-1-2 düzeni var.
+    
+    // Koordinatlar
+    const x_base = startX + 250;
+    const y_center = startY + plateH/2;
+    const y_gap = plateH / 3;
+    const x_gap = 50 * scale; // s mesafesi
+    
+    // Basit bir 2-1-2 düzeni simülasyonu
+    const positions = [
+        {x: x_base, y: y_center - y_gap}, {x: x_base, y: y_center + y_gap}, // Sağ sıra (2)
+        {x: x_base - x_gap, y: y_center}, // Orta (1)
+        {x: x_base - 2*x_gap, y: y_center - y_gap}, {x: x_base - 2*x_gap, y: y_center + y_gap} // Sol sıra (2)
+    ];
+
+    ctx.fillStyle = "#fff";
+    ctx.strokeStyle = "#000";
+    ctx.lineWidth = 1;
+
+    for (let i = 0; i < Math.min(n, 5); i++) {
+        let p = positions[i];
+        
+        // Slot Çizimi (Rounded Rect)
+        // Sol daire merkezi
+        let lx = p.x - slotL/2;
+        let rx = p.x + slotL/2;
+        
+        ctx.beginPath();
+        // Üst çizgi
+        ctx.moveTo(lx, p.y - radius);
+        ctx.lineTo(rx, p.y - radius);
+        // Sağ yay
+        ctx.arc(rx, p.y, radius, 1.5*Math.PI, 0.5*Math.PI);
+        // Alt çizgi
+        ctx.lineTo(lx, p.y + radius);
+        // Sol yay
+        ctx.arc(lx, p.y, radius, 0.5*Math.PI, 1.5*Math.PI);
+        
+        ctx.fill();
+        ctx.stroke();
+        
+        // Bulon Merkezi (+)
+        ctx.beginPath();
+        ctx.moveTo(p.x - 3, p.y); ctx.lineTo(p.x + 3, p.y);
+        ctx.moveTo(p.x, p.y - 3); ctx.lineTo(p.x, p.y + 3);
+        ctx.stroke();
+    }
+    
+    // Kuvvet Oku
+    ctx.strokeStyle = "#b00";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(startX + plateW, startY + plateH/2);
+    ctx.lineTo(startX + plateW + 40, startY + plateH/2);
+    ctx.stroke();
+    // Uç
+    ctx.beginPath();
+    ctx.moveTo(startX + plateW + 40, startY + plateH/2);
+    ctx.lineTo(startX + plateW + 30, startY + plateH/2 - 5);
+    ctx.lineTo(startX + plateW + 30, startY + plateH/2 + 5);
+    ctx.fillStyle = "#b00";
+    ctx.fill();
+    ctx.font = "bold 12px Tahoma";
+    ctx.fillText("P", startX + plateW + 10, startY + plateH/2 - 10);
+    
+    // Etiket
+    ctx.fillStyle = "#000";
+    ctx.font = "11px Tahoma";
+    let label = "Standart Delik";
+    if (type === "SSL") label = "Kısa Oval Delik (Paralel)";
+    if (type === "LSL") label = "Uzun Oval Delik (Paralel)";
+    ctx.fillText(label, 10, 15);
+}
+
+function hesapla() {
+    // Girdiler
+    const PG = parseFloat(document.getElementById("PG").value);
+    const PQ = parseFloat(document.getElementById("PQ").value);
+    
+    const mu = parseFloat(document.getElementById("mu_class").value);
+    const D = parseFloat(document.getElementById("factor_D").value);
+    const hf = 1.0; // Besleme levhası yok (Örnek varsayımı)
+    const Tb = parseFloat(document.getElementById("Tb").value);
+    const ns = 1; // Tek tesirli
+    
+    const n = parseFloat(document.getElementById("n_bolt").value);
+    
+    const phi = parseFloat(document.getElementById("phi").value);
+    const omega = parseFloat(document.getElementById("omega").value);
+    
+    log("", true);
+    
+    // --- ADIM 1: YÜKLER ---
+    log("<span class='calc-header'>I. TASARIM YÜKLERİ</span>");
+    const Pu = 1.2 * PG + 1.6 * PQ;
+    const Pa = PG + PQ;
+    
+    log(`YDKT (Pu) = 1.2(${PG}) + 1.6(${PQ}) = <b>${Pu.toFixed(1)} kN</b>`);
+    log(`GKT (Pa) = ${PG} + ${PQ} = <b>${Pa.toFixed(1)} kN</b>`);
+    
+    // --- ADIM 2: BİR BULONUN KAYMA DAYANIMI ---
+    log("\n<span class='calc-header'>II. BİR BULONUN KAYMA DAYANIMI (Rn)</span>");
+    log("Formül: Rn = μ * D * hf * Tb * ns [Yön. 13.12]");
+    
+    const Rn_one = mu * D * hf * Tb * ns;
+    
+    log(`μ = ${mu}`);
+    log(`D = ${D} (${document.getElementById("hole_type").options[document.getElementById("hole_type").selectedIndex].text})`);
+    log(`hf = ${hf} (Besleme levhası yok)`);
+    log(`Tb = ${Tb} kN`);
+    log(`Rn (1 bulon) = ${mu} * ${D} * ${hf} * ${Tb} * ${ns} = <b>${Rn_one.toFixed(2)} kN</b>`);
+    
+    // --- ADIM 3: TOPLAM DAYANIM ---
+    log("\n<span class='calc-header'>III. TOPLAM DAYANIM</span>");
+    const Rn_total = n * Rn_one;
+    log(`Toplam Rn = ${n} * ${Rn_one.toFixed(2)} = <b>${Rn_total.toFixed(2)} kN</b>`);
+    
+    // --- ADIM 4: KONTROLLER ---
+    log("\n<span class='calc-header'>IV. TASARIM KONTROLÜ</span>");
+    
+    // YDKT
+    const P_cap_d = phi * Rn_total;
+    let res_d = (P_cap_d >= Pu) ? "pass" : "fail";
+    let txt_d = (P_cap_d >= Pu) ? "GÜVENLİ" : "YETERSİZ";
+    
+    log(`[YDKT] Tasarım Dayanımı (ϕRn) = ${phi} * ${Rn_total.toFixed(2)} = <b>${P_cap_d.toFixed(2)} kN</b>`);
+    log(`Talep (Pu) = ${Pu.toFixed(1)} kN`);
+    log(`Oran = ${(Pu/P_cap_d).toFixed(2)} -> <span class='${res_d}'>${txt_d}</span>`);
+    
+    // GKT
+    const P_cap_g = Rn_total / omega;
+    let res_g = (P_cap_g >= Pa) ? "pass" : "fail";
+    let txt_g = (P_cap_g >= Pa) ? "GÜVENLİ" : "YETERSİZ";
+    
+    log(`\n[GKT] Güvenli Dayanım (Rn/Ω) = ${Rn_total.toFixed(2)} / ${omega} = <b>${P_cap_g.toFixed(2)} kN</b>`);
+    log(`Talep (Pa) = ${Pa.toFixed(1)} kN`);
+    log(`Oran = ${(Pa/P_cap_g).toFixed(2)} -> <span class='${res_g}'>${txt_g}</span>`);
+    
+    drawConnection();
+}
+
+// Başlangıçta Örnek 13.10'u yükle
+window.onload = function() {
+    // Varsayılan değerler zaten HTML'de 13.10 için ayarlı
+    updateFactors();
+    hesapla();
+};
 </script>
-
-
 
 </body>
 </html>
